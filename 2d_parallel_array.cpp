@@ -69,7 +69,7 @@ void parallelArray2D::perturbSpinDistributionWithGibbsSampling () {
     
     //  choose which spin to move
     for (i = 0; ; i++) {
-        i_sample = rand () % pwo (LL, 2);
+        i_sample = rand () % (int) pow (LL, 2);
         i_one_hot = i_sample / LL;
         j_one_hot = i_sample % LL;
         if (s_record_book[i_one_hot][j_one_hot] == 1) continue;
@@ -77,7 +77,7 @@ void parallelArray2D::perturbSpinDistributionWithGibbsSampling () {
     }
 
     //  evaluate if spin direction to be moved
-    
+
 
 
 
