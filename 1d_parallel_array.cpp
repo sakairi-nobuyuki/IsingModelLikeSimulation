@@ -1,16 +1,26 @@
+#ifndef __1D_PARALLEL_ARRAY__
+#define __1D_PARALLEL_ARRAY__
+
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <math.h>
+#include <sstream>
+#include <bitset>
+#include <list>
+#include <string>
+
 #include "1d_parallel_array.h"
+#include "utility.h"
+
 
 using namespace std;
 
 parallelArray1D::parallelArray1D () {
     n_status = 2;
-    n_particles = 20;
+    n_particles = 5;
     Kappa = 1.0;
-    CvdW  = 1.0;
+    CvdW  = 0.0001;
 
     kB = 1.0;
     T  = 100;
@@ -24,21 +34,52 @@ parallelArray1D::parallelArray1D () {
     // initialization with random spins
     initRandomSpins ();
 
+    Z = obtainDistributionFunction ();
+
 }
 
+
 double parallelArray1D::obtainDistributionFunction () {
+    int i, j, k, spin_status_in_bin;
+    string spin_state;
+    list<string>::iterator all_spin_state_itr;
+    
+    setAllSpinState (all_spin_state);
+    
+
     //  Z = sum exp (-Beta H (s))
+    //cout << endl << endl << "all spinstate" << endl;
+    for (all_spin_state_itr = all_spin_state.begin (); all_spin_state_itr != all_spin_state.end (); all_spin_state_itr++) {
+        spin_state = *all_spin_state_itr;
+        cout << spin_state << endl;
+        
+        for (i = 0; i < spin_state.size (); i++) {
+            cout << "  " << spin_state[i] << endl;
+        }
+        
+    }
+        
+    
+
+    
     return 1.0;
-//    for (i = 0; i <n_particles; i++) {
-//        for (j = 0; j <n_particles; j++) {
-//            for (k = 0; k <n_particles; k++) {
-//                for (l = 0; l <n_particles; l++) {
 
-//                }
-//            }
-//        }
+}
 
-//    }
+
+void parallelArray1D::setAllSpinState (list<string> &AllSpinState) {
+    int i;
+
+    for (i = 0; i < pow (n_status, n_particles); i++) {
+        string spin_status_in_str;
+        stringstream bin_in_string;    
+
+        bin_in_string << bitset <sizeof (i) * __CHAR_BIT__> (i);
+        spin_status_in_str = bin_in_string.str ().substr (sizeof (i) * __CHAR_BIT__ - n_particles, n_particles);
+        cout << i << " " << spin_status_in_str << endl;
+        AllSpinState.push_back (spin_status_in_str);
+    }
+
 }
 
 
@@ -66,7 +107,7 @@ void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
 
 }
 
-void parallelArray1D::obtainHamiltonian () {
+void parallelArray1D::obtainHamiltonian (int *s, int n_particles) {
     // boundary condition
     cout << "set cyclic boundary condition" << endl;
     obtainCyclicBoundaryCondition ();
@@ -126,5 +167,8 @@ double parallelArray1D::obtainVanDerWaalsInteractionDiscrete1D (int x1, int x2) 
 }
 
 double parallelArray1D::obtainD2DistanceDiscrete1D (int x1, int x2) {
-    return sqrt ((double) (x1 - x2));
+    return fabs ((double) (x1 - x2));
 }
+
+
+#endif
