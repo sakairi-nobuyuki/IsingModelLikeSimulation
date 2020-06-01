@@ -9,6 +9,7 @@
 #include <bitset>
 #include <list>
 #include <string>
+#include <typeinfo>
 
 #include "1d_parallel_array.h"
 #include "utility.h"
@@ -40,8 +41,9 @@ parallelArray1D::parallelArray1D () {
 
 
 double parallelArray1D::obtainDistributionFunction () {
-    int i, j, k, spin_status_in_bin;
-    string spin_state;
+    int i, j, k, spin_status_in_bin, spin_subject[n_particles], spin_target[n_particles], spin_test;
+    const char* spin_state_char;
+    string spin_state, spin_state_1_digit;
     list<string>::iterator all_spin_state_itr;
     
     setAllSpinState (all_spin_state);
@@ -50,11 +52,22 @@ double parallelArray1D::obtainDistributionFunction () {
     //  Z = sum exp (-Beta H (s))
     //cout << endl << endl << "all spinstate" << endl;
     for (all_spin_state_itr = all_spin_state.begin (); all_spin_state_itr != all_spin_state.end (); all_spin_state_itr++) {
-        spin_state = *all_spin_state_itr;
-        cout << spin_state << endl;
+        spin_state = *all_spin_state_itr;    //  transform list of string to string
         
         for (i = 0; i < spin_state.size (); i++) {
-            cout << "  " << spin_state[i] << endl;
+            spin_state_1_digit = spin_state[i];
+            spin_test = stoi (spin_state_1_digit);
+            spin_subject[i] = spin_test;
+            cout << spin_subject[i];
+        }
+        cout << endl;
+        
+        for (i = 0; i < n_particles; i++) {
+            for (j = 0; j < i; j++) {
+                
+                cout << i << " " << j << " " << spin_subject[i] << " " << spin_subject[j] << endl;
+
+            }
         }
         
     }
