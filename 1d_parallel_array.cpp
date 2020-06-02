@@ -45,10 +45,12 @@ double parallelArray1D::obtainDistributionFunction () {
     const char* spin_state_char;
     string spin_state, spin_state_1_digit;
     list<string>::iterator all_spin_state_itr;
+    double Z;
+
+    Z = 0.0;
     
     setAllSpinState (all_spin_state);
     
-
     //  Z = sum exp (-Beta H (s))
     //cout << endl << endl << "all spinstate" << endl;
     for (all_spin_state_itr = all_spin_state.begin (); all_spin_state_itr != all_spin_state.end (); all_spin_state_itr++) {
@@ -62,20 +64,15 @@ double parallelArray1D::obtainDistributionFunction () {
         }
         cout << endl;
         
-        for (i = 0; i < n_particles; i++) {
-            for (j = 0; j < i; j++) {
-                
-                cout << i << " " << j << " " << spin_subject[i] << " " << spin_subject[j] << endl;
-
-            }
-        }
+        Z += obtainHamiltonian (spin_subject, n_particles);
+        //cout << "H = " << H << endl;
         
     }
         
     
-
+    cout << "Z = " << Z << endl;
     
-    return 1.0;
+    return Z;
 
 }
 
@@ -120,23 +117,32 @@ void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
 
 }
 
-void parallelArray1D::obtainHamiltonian (int *s, int n_particles) {
+double parallelArray1D::obtainHamiltonian (int *s, int n_particles) {
+    int i;
+    double H;
+
     // boundary condition
-    cout << "set cyclic boundary condition" << endl;
-    obtainCyclicBoundaryCondition ();
-    printHamiltonianAndSpinStatus ();
-    cout << "finished to set cyclic boundary condition" << endl;
+    //cout << "set cyclic boundary condition with spin state ";
+    //for (i = 0; i < n_particles; i++) cout << s[i];
+    //cout << endl;
+    //obtainCyclicBoundaryCondition ();
+    //printHamiltonianAndSpinStatus ();
+    //cout << "finished to set cyclic boundary condition" << endl;
 
     //  calculating Hamiltonian
     cout << "start to calculate Hamiltonian" << endl;
     H = 0.0;
     cout << "initialize Hamiltonian" << endl;
-    for (i = 1; i < n_particles - 1; i++) {
-        for (k = 0; k < n_particles; k++) {
+    for (i = 0; i < n_particles; i++) {
+        for (k = 0; k < i; k++) {
             H += (obtainVanDerWaalsInteractionDiscrete1D (i, k) +
                 obtainEDLInteractionDiscrete1D (i, k)) * s[i] * s[k];
+            //cout << "i = " << i << ", j = " << j << ", H = " << H << endl;
         }
     }
+    
+
+    return H;
 }
 
 double parallelArray1D::obtainProbability (double H) {
@@ -150,7 +156,7 @@ void parallelArray1D::obtainCyclicBoundaryCondition () {
 
 
 void parallelArray1D::printHamiltonianAndSpinStatus () {
-    cout << "Hamiltonian: " << H << endl;
+    //cout << "Hamiltonian: " << H << endl;
     cout << "Spin status:" << endl;
     for (i = 0; i <n_particles; i++) cout << s[i] << " ";
     cout << endl;

@@ -8,8 +8,8 @@ class parallelArray1D {
     protected:
         int n_status, n_particles;
         int i, j, k, l;
-        double H, Jedl, JvdW;    //  Hamiltonian, interaction terms
-        double Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
+        double Jedl, JvdW;    //  Hamiltonian, interaction terms
+        double H, Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
         double Z, Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
         
         vector<int> s, s_record_book;
@@ -37,7 +37,7 @@ class parallelArray1D {
     public:
         parallelArray1D ();
         
-        void obtainHamiltonian (int *s, int n_particles);
+        double obtainHamiltonian (int *s, int n_particles);
         void printHamiltonianAndSpinStatus ();
 
 
