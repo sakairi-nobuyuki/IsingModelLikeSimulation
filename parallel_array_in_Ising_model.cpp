@@ -5,24 +5,12 @@
 
 
 int main () {
+    int i;
     parallelArray1D Domain1;
     
-
-    //cout << "initialize Hamiltonian" << endl;
-    
-    //cout << "finished to initialize Hamiltonian" << endl;
-
-    
-    //Domain1.printHamiltonianAndSpinStatus ();
-
-    //  obtain distribution function Z
-
-
-    //  obtain probability p from H and Z
-
-
-
     //  perturvation against H with Gibbs sampling
+
+    Domain1.perturbSpinDistributionWithGibbsSampling ();
 
 
     return 0;
