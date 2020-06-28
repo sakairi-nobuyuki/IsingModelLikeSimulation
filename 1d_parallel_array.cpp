@@ -19,8 +19,9 @@
 using namespace std;
 
 parallelArray1D::parallelArray1D () {
-    n_status = 2;
-    n_particles = 8;
+    n_status     = 2;
+    n_particles  = 8;
+    n_state_of_c = 10;
     Kappa = 1.0;
     CvdW  = 0.0001;
 
@@ -38,6 +39,16 @@ parallelArray1D::parallelArray1D () {
     initRandomSpins (); 
 
 }
+
+void parallelArray1D::initRandomOrderParameter () {
+    for (i = 0; i <n_particles; i++) {
+        c[i] = rand () % n_state_of_c;
+        cout << c[i] << " ";
+    }
+    cout << endl;
+}
+
+
 
 void parallelArray1D::initRandomSpins () {
     for (i = 0; i <n_particles; i++) {
