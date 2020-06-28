@@ -20,7 +20,7 @@ using namespace std;
 
 parallelArray1D::parallelArray1D () {
     n_status = 2;
-    n_particles = 5;
+    n_particles = 8;
     Kappa = 1.0;
     CvdW  = 0.0001;
 
@@ -66,9 +66,9 @@ double parallelArray1D::obtainDistributionFunction () {
             if (spin_test == 0) spin_test = -1;
             //cout << spin_test << endl;
             spin_subject[i] = spin_test;
-            //cout << spin_subject[i];
+            cout << spin_subject[i];
         }
-        //cout << endl;
+        cout << endl;
         
         H = obtainHamiltonian (spin_subject);
         Z += exp (-Beta * H);
@@ -123,12 +123,12 @@ void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
         if (s_record_book[i_sample] == 0) {
             Peval = exp (-Beta * obtainHamiltonian (s)) / Z;
             Prand = (double) (rand () % 100) * 0.01;
-            if (Peval > Prand) {
+            if (Peval < Prand) {
                 s[i_sample] = 1;
-                cout << "up" << Peval << " " << Prand << endl;
+                cout << "up " << Peval << " " << Prand << endl;
             } else {
                 s[i_sample] = -1;
-                cout << "down" << Peval << " " << Prand  << endl;
+                cout << "down " << Peval << " " << Prand  << endl;
             }
             s_record_book[i_sample] = 1;
         } 
@@ -137,9 +137,6 @@ void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
     for (i = 0; i < s.size (); i++)  cout << s[i];
     cout << endl;
     //  evaluate if spin direction to be moved
-    
-
-
 
 }
 
