@@ -1,0 +1,2 @@
+# Parallel sheet array simulation with Ising model
+A classical meso-scale sheet like shape particle arrangement will be able to simulate Ising model, by assuming each particles spatially allocated in average distance and the position of each particles are always fixed dispite its order of direction has a definite degree of freedom.
