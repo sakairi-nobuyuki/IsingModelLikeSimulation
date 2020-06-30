@@ -36,7 +36,8 @@ class parallelArray1D {
         double obtainVanDerWaalsInteractionDiscrete1D (int x1, int x2);
         void executeGibbsSampling ();        
         double obtainConditionalProb1D (int i_particle);
-        int obtainSpinStateFromOrderParameter (int c);
+        void transformOrderParameterToSpinState ();
+        int obtainSpinFromOrderParameter (int c);
         //double obtainProbability (double H);
     public:
         parallelArray1D ();

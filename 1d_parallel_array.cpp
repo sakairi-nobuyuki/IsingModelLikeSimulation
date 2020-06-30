@@ -33,7 +33,6 @@ parallelArray1D::parallelArray1D () {
     //  allocate spin and spin record book
     s.resize (n_particles);
     s_record_book.resize (n_particles);
-    
 
     //  initializing random spin
     initRandomSpins (); 
@@ -77,13 +76,18 @@ void parallelArray1D::executeGibbsSampling () {
 }
 
 double parallelArray1D::obtainConditionalProb1D (int i_particle) {
-
-
+    printf ("hoge");
+    return 0.0;
 
 }
 
-int parallelArray1D::obtainSpinStateFromOrderParameter (int c) {
-    
+void parallelArray1D::transformOrderParameterToSpinState () {
+    for (i = 0; i < n_particles; i++) {
+        s[i] = obtainSpinFromOrderParameter (c[i]);
+    }
+}
+inline int parallelArray1D::obtainSpinFromOrderParameter (int c) {
+    return (c - c_th) > 0;
 }
 
 
