@@ -20,10 +20,11 @@ using namespace std;
 
 parallelArray1D::parallelArray1D () {
     n_status     = 2;
-    n_particles  = 8;
+    n_particles  = 10;
     n_state_of_c = 10;
     Kappa = 1.0;
     CvdW  = 0.0001;
+    c_th  = 2;
 
     kB = 1.0;
     T  = 100;
@@ -33,9 +34,17 @@ parallelArray1D::parallelArray1D () {
     //  allocate spin and spin record book
     s.resize (n_particles);
     s_record_book.resize (n_particles);
+    c.resize (n_particles);
+    c_record_book.resize (n_particles);
 
     //  initializing random spin
-    initRandomSpins (); 
+    initRandomOrderParameter (); 
+
+    //  transformation order parameter to spin
+    transformOrderParameterToSpinState ();
+
+    // confirmation
+    printSpinAndOrderParameterState ();
 
 }
 
@@ -48,16 +57,16 @@ void parallelArray1D::initRandomOrderParameter () {
 }
 
 
+void parallelArray1D::printSpinAndOrderParameterState () {
+    cout << "Order Parameter" << endl;
+    for (i = 0; i < n_particles; i++) cout << c[i];
+    cout << endl;
 
-void parallelArray1D::initRandomSpins () {
-    for (i = 0; i <n_particles; i++) {
-        s[i] = rand () % n_status;
-        if (s[i] == 0)  s[i] = -1;
-        //cout << s[i] << " ";
-    }
-    //cout << endl;
+    cout << "Spin" << endl;
+    for (i = 0; i < n_particles; i++) cout << s[i];
+    cout << endl;
+
 }
-
 
 void parallelArray1D::executeGibbsSampling () {
     int i_sample, n_shifted_particles;
@@ -70,15 +79,42 @@ void parallelArray1D::executeGibbsSampling () {
     for (i = 0; n_shifted_particles = accumulate (c_record_book.begin (), c_record_book.end (), 0) < n_particles; i++) {
         i_sample = rand () % n_particles;
         cout << i_sample << "shall be evaluated first" << endl;
+        if (s_record_book[i_sample] == 0) {
+            
+            Peval = 0.0;
+            Prand = (double) (rand () % 100) * 0.01;
+            if (Peval < Prand) {
+                s[i_sample] = 1;
+                cout << "up " << Peval << " " << Prand << endl;
+            } else {
+                s[i_sample] = -1;
+                cout << "down " << Peval << " " << Prand  << endl;
+            }
+            s_record_book[i_sample] = 1;
+        } 
+
 
 
     }
 }
 
-double parallelArray1D::obtainConditionalProb1D (int i_particle) {
-    printf ("hoge");
-    return 0.0;
+inline double parallelArray1D::obtainConditionalProb1D (int i_particle, int c_subject) {
+    ProtoProb = 0.0;
 
+    for (j = 0; j < n_state_of_c; j++) {
+        
+        ProtoProb += exp (-Beta * J * ((obtainSpinFromOrderParameter (c[i_particle]) - obtainSpinFromOrderParameter (c_subject)) 
+            * (s[i_particle - 1] - s[i_particle + 1])));
+
+    }
+
+    return 1.0 / (1.0 );
+}
+
+double parallelArray1D::obtainInteractionPotential () {
+    
+
+    return 0.0;
 }
 
 void parallelArray1D::transformOrderParameterToSpinState () {
