@@ -78,14 +78,32 @@ To make the effetiveness of the model, we are trying to make calculations by na\
 \begin{equation}
  J_{ij} = \frac{1}{D_{ij}} - \alpha e^{\kappa D_{ij}}.   \label{potential}
 \end{equation}
-Here, the first term of right side of eq. (\ref{potential}) representing van der Waals force, and the second denoting EDL forces.
+Here, the first term of right side of eq. (\ref{potential}) representing van der Waals force, and the second denoting EDL forces, and $D_{ij}$ is 
+distance between $i$ th and $j$ th particles.
 
+As proposed in ref. \cite{adachi} and ref. \cite{sakairi}, the distance between particles are represented by $D = \delta (1/\phi - 1)$,
+where $D$, $\delta$, and $\phi$ is distance between particle centers assuming sheet like particles array in parallel, sheet like particle width,
+ and, volume fraction of the suspension. This exression can be used in the case of F-F interaction. 
+When it comes to E-F interaction, we have a simplified assumtion that each particles are aligned in T-like array as shown in fig. XXX.
+If we assume sheetlike particle length to be $l$, distance between particles can be represented like $\delta (1/\phi - 1) - (l-\delta)/2$.
+The term $(1-\delta)/2$ reflects diminished interparticle distance of T-like aligned particles.
+Of course such assumption shall be regarded as over simplification, and some adjustment coefficient that reflecting to narrow interaction area
+between T-like alignment. However we suppose E-F interaction at quite lower ionic strength may cause spill-over effect as pointed in ref. \cite{sposito},
+furthermore, once the overlapping area of EDL is increased a little more, the evergy of the system shall be increased.
 
-
+By these assumtion, the interaction distance of neiboughing particles might be expressed as,
+\begin{equation}
+ D_{ij} = \delta\left(1 - \frac{1}{\phi}\right) - (s_i + s_j)\frac{l-\delta}{2}.
+\end{equation}
+In this formula, we assumed any proper coodinate that we can put every particles in this corrdinate.
+The center to center particle distance is assumed to be $D$, and they are alocated in uniformly.
+Assuming, when $s_i = 0$, the particle is aligned vertical to the coordinate, and whem $s_i = 1$, the particle is aligned in horizontal to the corrdinate.
+Therefore, $(s_i, s_j) = (0, 0)$ coinsides F-F alignment,  $(s_i, s_j) = (1, 0)$ or $(s_i, s_j) = (0, 1)$ coincides E-F alignment, and $(s_i, s_j) = (1, 1)$ coincides E-F alignment.
 
 
 \begin{thebibliography}{99}
  \bibitem{adachi}  \textit{Trans. of JSIDRE}, \textit{No.} 200, \textit{pp.} 53-58 (1999. 4)
+ \bibitem{sposito} Garrison Sposito, The Chemistry of Soils Second Edition, 
  \bibitem{sakairi} \textit{J. of Colloid and Interface Sci.}, \textit{Vol.} 283, \textit{Issue} 1, 1 March 2005, pp. 245-250
  \bibitem{Kubo}    R. Kubo, Statistical mechanics, Kyoritsu Shuppan (in Japanese)
  \bibitem{Imada_Miyashita_stats_mech} M. Imada, S. Miyashita, Univ. Tokyo Engineering Course Statitical Mechanics, Maruzen (in Japanese)

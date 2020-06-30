@@ -59,6 +59,35 @@ void parallelArray1D::initRandomSpins () {
     //cout << endl;
 }
 
+
+void parallelArray1D::executeGibbsSampling () {
+    int i_sample, n_shifted_particles;
+
+    //  initialize spin recordbook
+    cout << "start perturbation" << endl << "initializing spin book" << endl;
+    for (i = 0; i <n_particles; i++) c_record_book[i] = 0;
+
+    //  choose particles
+    for (i = 0; n_shifted_particles = accumulate (c_record_book.begin (), c_record_book.end (), 0) < n_particles; i++) {
+        i_sample = rand () % n_particles;
+        cout << i_sample << "shall be evaluated first" << endl;
+
+
+    }
+}
+
+double parallelArray1D::obtainConditionalProb1D (int i_particle) {
+
+
+
+}
+
+int parallelArray1D::obtainSpinStateFromOrderParameter (int c) {
+    
+}
+
+
+
 void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
     int i_sample, i_one_hot, j_one_hot, n_shifted_particles;
     double Peval, Prand;
