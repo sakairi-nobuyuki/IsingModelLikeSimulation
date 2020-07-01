@@ -10,6 +10,8 @@ class parallelArray1D {
         int i, j, k, l;
         int c_th;
         double Jedl, JvdW, J;    //  Hamiltonian, interaction terms
+        double Phi, Delta, L, D, Dex, Cex, IonicStrength;   //  Dex: distance concerning to exclusive volume, Cex: coefficient concerning to exclusive voume
+        double Alpha;   //  Ratio of EDL force and van der Waals force
         double H, Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
         double ProtoProb;
         double Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
@@ -33,7 +35,7 @@ class parallelArray1D {
         double obtainEDLInteractionDiscrete1D (int x1, int x2);
         double obtainVanDerWaalsInteractionDiscrete1D (int x1, int x2);
   
-        double obtainInteractionPotential ();
+        double obtainInteractionPotential (int s_1, int s_2);
         double obtainConditionalProb1D (int i_particle, int c_subject);
         void transformOrderParameterToSpinState ();
         int obtainSpinFromOrderParameter (int c);

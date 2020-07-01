@@ -20,16 +20,37 @@ using namespace std;
 
 parallelArray1D::parallelArray1D () {
     n_status     = 2;
-    n_particles  = 10;
+    n_particles  = 100;
     n_state_of_c = 10;
-    Kappa = 1.0;
+    
+    IonicStrength = 0.01;
+    Phi   = 0.1; 
+    Delta = 1.0e-09;
+    L     = 500.0e-09;
     CvdW  = 0.0001;
+    Cex = 4.0;
+
     c_th  = 2;
 
     kB = 1.0;
     T  = 100;
     Beta = 1.0 / (kB * T);
 
+    //  initialize geometrical parameters
+    Kappa = 0.304 / sqrt (IonicStrength) * 1.0e-09;
+    D   = Delta * (1.0 / Phi - 1.0);
+    Dex = 0.5 * (L - Delta) * Delta / L * Cex;
+    Alpha = 1.0;
+
+    cout << "initializin geometrical parameters" << endl;
+    cout << "  phi:   " << Phi << "(-)" << endl;
+    cout << "  kappa: " << Kappa * 1.0e+09 << "(m-9)" << endl;
+    cout << "  delta: " << Delta * 1.0e+09 << "(m-9)" << endl;
+    cout << "  l:     " << L * 1.0e+09 << "(m-9)" << endl;
+    cout << "  D:     " << D * 1.0e+09 << "(m-9)" << endl;
+    cout << "  Dex:   " << Dex * 1.0e+09 << "(m-9)" << endl;
+    cout << "  IonicStrength: " << IonicStrength << "(mol/L)" << endl;
+    cout << "  Alpha:   " << Alpha << "(-)" << endl << endl;
 
     //  allocate spin and spin record book
     s.resize (n_particles);
@@ -44,25 +65,27 @@ parallelArray1D::parallelArray1D () {
     transformOrderParameterToSpinState ();
 
     // confirmation
+    cout << "Finished initialize order parameter and spin" << endl;
     printSpinAndOrderParameterState ();
+    cout << endl;
 
 }
 
 void parallelArray1D::initRandomOrderParameter () {
     for (i = 0; i <n_particles; i++) {
         c[i] = rand () % n_state_of_c;
-        cout << c[i] << " ";
+        //cout << c[i] << " ";
     }
-    cout << endl;
+    //cout << endl;
 }
 
 
 void parallelArray1D::printSpinAndOrderParameterState () {
-    cout << "Order Parameter" << endl;
+    cout << "Order Parameter" << endl << "  ";
     for (i = 0; i < n_particles; i++) cout << c[i];
     cout << endl;
 
-    cout << "Spin" << endl;
+    cout << "Spin" << endl << "  ";
     for (i = 0; i < n_particles; i++) cout << s[i];
     cout << endl;
 
@@ -70,6 +93,7 @@ void parallelArray1D::printSpinAndOrderParameterState () {
 
 void parallelArray1D::executeGibbsSampling () {
     int i_sample, n_shifted_particles;
+    double Prand, Peval;
 
     //  initialize spin recordbook
     cout << "start perturbation" << endl << "initializing spin book" << endl;
@@ -99,10 +123,11 @@ void parallelArray1D::executeGibbsSampling () {
 }
 
 inline double parallelArray1D::obtainConditionalProb1D (int i_particle, int c_subject) {
+
     ProtoProb = 0.0;
 
     for (j = 0; j < n_state_of_c; j++) {
-        
+        J = obtainInteractionPotential (s[i_particle - 1], s[i_particle + 1]);
         ProtoProb += exp (-Beta * J * ((obtainSpinFromOrderParameter (c[i_particle]) - obtainSpinFromOrderParameter (c_subject)) 
             * (s[i_particle - 1] - s[i_particle + 1])));
 
@@ -111,17 +136,14 @@ inline double parallelArray1D::obtainConditionalProb1D (int i_particle, int c_su
     return 1.0 / (1.0 );
 }
 
-double parallelArray1D::obtainInteractionPotential () {
-    
-
-    return 0.0;
+inline double parallelArray1D::obtainInteractionPotential (int s_1, int s_2) {
+    return -1.0 / D + Alpha * exp (-Kappa * (D - (s_1 + s_2) * Dex));
 }
 
 void parallelArray1D::transformOrderParameterToSpinState () {
-    for (i = 0; i < n_particles; i++) {
-        s[i] = obtainSpinFromOrderParameter (c[i]);
-    }
+    for (i = 0; i < n_particles; i++)   s[i] = ((c[i] - c_th) > 0);
 }
+
 inline int parallelArray1D::obtainSpinFromOrderParameter (int c) {
     return (c - c_th) > 0;
 }
