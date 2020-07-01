@@ -63,7 +63,7 @@ the weight of the probability of $s_i$ shall not be symmetric; $p (s_i = s^+) = 
 
 By using this auxalliary variable, Hamiltonian of the system is determined by $C$,
 \begin{equation}
- H (C) = - \sum J_{ij} s_i(c_i)s_j(c_j).
+ H (C) = - \sum J_{ij} (s_i(c_i)s_j(c_j)).
 \end{equation}
 
 Therefore, the conditional probability of $C' = c^J$ under a $\bar{C}$ state is given by,
@@ -93,12 +93,34 @@ furthermore, once the overlapping area of EDL is increased a little more, the ev
 
 By these assumtion, the interaction distance of neiboughing particles might be expressed as,
 \begin{equation}
- D_{ij} = \delta\left(1 - \frac{1}{\phi}\right) - (s_i + s_j)\frac{l-\delta}{2}.
+ D_{ij} = \delta\left(1 - \frac{1}{\phi}\right) - (s_i + s_j)\frac{l-\delta}{2}.  \label{distance}
 \end{equation}
 In this formula, we assumed any proper coodinate that we can put every particles in this corrdinate.
 The center to center particle distance is assumed to be $D$, and they are alocated in uniformly.
 Assuming, when $s_i = 0$, the particle is aligned vertical to the coordinate, and whem $s_i = 1$, the particle is aligned in horizontal to the corrdinate.
 Therefore, $(s_i, s_j) = (0, 0)$ coinsides F-F alignment,  $(s_i, s_j) = (1, 0)$ or $(s_i, s_j) = (0, 1)$ coincides E-F alignment, and $(s_i, s_j) = (1, 1)$ coincides E-F alignment.
+
+Substituting eq. (\ref{distance}) into eq. (\ref{potential}) yields,
+\begin{equation}
+ H (C) = \sum_{i<j} \left\{e^{-\kappa \bar{D}} - \frac{\alpha}{\bar{D}} + \kappa D_{\text{ex}}\left(s_i(c_i) + s_j(c_j)\right)\right\},
+\end{equation}
+where $D_{\text{ex}}$ is defined to be $(l + \delta) / 2$ and $\bar{D} = D - \delta$.
+This Hamiltonian formulation leads the following conditional probebility expression at $C' = c^J$ and the rest of the system state is $\bar{C}$. 
+Where $c^J$ means, the order parameter is in $J$ th state.
+\begin{equation}
+ p(C'=c^J|\bar{C}) = \frac{1}{1 + e^{-2\beta J \{s_i (c_i) - s_i (c^J)\}}},  \label{conditional_prob}
+\end{equation}
+where, $J = \alpha \kappa e^{-\kappa D}$, and, simple perturbation was given that neglects 2nd order of $D_{\text{ex}}/\bar{D}$ and $D_{\text{ex}} / \bar{D}^2$.
+Also, 
+\begin{equation}
+ J = \alpha \kappa e^{-\kappa \bar{D}}.
+\end{equation}
+
+The form of eq. (\ref{conditional_prob}) is quite similar to that of Ising model of typical phase transition of magnetic material.
+This similarity insisting the state of sheet like colloidal suspension shows first order-phase transition.
+
+
+
 
 
 \begin{thebibliography}{99}
