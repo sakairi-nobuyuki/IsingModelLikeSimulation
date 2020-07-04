@@ -21,7 +21,7 @@ using namespace std;
 parallelArray1D::parallelArray1D () {
     n_status     = 2;
     n_particles  = 100;
-    n_state_of_c = 10;
+    n_state_of_c = 2;
     
     IonicStrength = 0.01;
     Phi   = 0.1; 
@@ -30,17 +30,19 @@ parallelArray1D::parallelArray1D () {
     CvdW  = 0.0001;
     Cex = 4.0;
 
-    c_th  = 2;
+    c_th  = 4;
 
     kB = 1.0;
-    T  = 100;
+    T  = 300;
     Beta = 1.0 / (kB * T);
 
     //  initialize geometrical parameters
     Kappa = 0.304 / sqrt (IonicStrength) * 1.0e-09;
     D   = Delta * (1.0 / Phi - 1.0);
     Dex = 0.5 * (L - Delta) * Delta / L * Cex;
-    Alpha = 1.0;
+    Alpha = 1.0e+09;
+
+    J = Alpha * Kappa * exp (-Kappa * D);
 
     cout << "initializin geometrical parameters" << endl;
     cout << "  phi:   " << Phi << "(-)" << endl;
@@ -102,11 +104,14 @@ void parallelArray1D::executeGibbsSampling () {
     //  choose particles
     for (i = 0; n_shifted_particles = accumulate (c_record_book.begin (), c_record_book.end (), 0) < n_particles; i++) {
         i_sample = rand () % n_particles;
-        cout << i_sample << "shall be evaluated first" << endl;
-        if (s_record_book[i_sample] == 0) {
+        //cout << i_sample << "shall be evaluated first" << endl;
+        if (c_record_book[i_sample] == 0) {
             
-            Peval = 0.0;
+            Peval = obtainConditionalProb1D (c[i_sample]);
             Prand = (double) (rand () % 100) * 0.01;
+            cout << i << "th sampling: " << endl;
+            cout << "  " << i_sample << " th spin, c = " << c[i_sample] << endl;
+            cout << "  Pcond = " << Peval << ", Prand = " << Prand << endl;
             if (Peval < Prand) {
                 s[i_sample] = 1;
                 cout << "up " << Peval << " " << Prand << endl;
@@ -114,7 +119,7 @@ void parallelArray1D::executeGibbsSampling () {
                 s[i_sample] = -1;
                 cout << "down " << Peval << " " << Prand  << endl;
             }
-            s_record_book[i_sample] = 1;
+            c_record_book[i_sample] = 1;
         } 
 
 
@@ -122,18 +127,20 @@ void parallelArray1D::executeGibbsSampling () {
     }
 }
 
-inline double parallelArray1D::obtainConditionalProb1D (int i_particle, int c_subject) {
+inline double parallelArray1D::obtainConditionalProb1D (int c_subject) {
 
     ProtoProb = 0.0;
 
     for (j = 0; j < n_state_of_c; j++) {
-        J = obtainInteractionPotential (s[i_particle - 1], s[i_particle + 1]);
-        ProtoProb += exp (-Beta * J * ((obtainSpinFromOrderParameter (c[i_particle]) - obtainSpinFromOrderParameter (c_subject)) 
-            * (s[i_particle - 1] - s[i_particle + 1])));
-
+        //ProtoProb += -2.0 * Beta * J * ((obtainSpinFromOrderParameter (j) - obtainSpinFromOrderParameter (c_subject))); 
+        ProtoProb += exp (-2.0 * Beta * J * ((obtainSpinFromOrderParameter (j) - obtainSpinFromOrderParameter (c_subject)))); 
+        cout << "  j = " << j << ", cj = " << obtainSpinFromOrderParameter (j) << ", cJ = " << obtainSpinFromOrderParameter (c_subject);
+        cout << ", proto p = " << ProtoProb;
+        cout << ", J = " << J << ", Beta = " << Beta << endl;
     }
 
-    return 1.0 / (1.0 );
+    cout << "Conditional Probability: " << 1.0 / (1.0 + ProtoProb) << endl;
+    return 1.0 / (1.0 + ProtoProb);
 }
 
 inline double parallelArray1D::obtainInteractionPotential (int s_1, int s_2) {

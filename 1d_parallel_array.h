@@ -36,7 +36,7 @@ class parallelArray1D {
         double obtainVanDerWaalsInteractionDiscrete1D (int x1, int x2);
   
         double obtainInteractionPotential (int s_1, int s_2);
-        double obtainConditionalProb1D (int i_particle, int c_subject);
+        double obtainConditionalProb1D (int c_subject);
         void transformOrderParameterToSpinState ();
         int obtainSpinFromOrderParameter (int c);
         

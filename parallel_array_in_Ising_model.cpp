@@ -10,7 +10,7 @@ int main () {
     
     //  perturvation against H with Gibbs sampling
 
-    //Domain1.perturbSpinDistributionWithGibbsSampling ();
+    Domain1.executeGibbsSampling ();
 
 
     return 0;
