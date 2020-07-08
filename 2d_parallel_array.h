@@ -4,13 +4,14 @@
 using namespace std;
 class parallelArray2D {
     protected:
-        int LL;
+        int n_x, n_y, n_paticles;
         int i, j, k, l;
         double H, Jedl, JvdW;    //  Hamiltonian, interaction terms
         double Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
         double Z, Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
         
-        std::vector <vector <int>> s, s_record_book;
+        std::vector <int> s, s_record_book;
+        //std::vector <vector <int>> s, s_record_book;
 
         void initRandomSpins ();
         void obtainCyclicBoundaryCondition ();

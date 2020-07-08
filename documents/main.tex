@@ -8,24 +8,27 @@
 \maketitle
 
 \section{Introduction}
-The author has proposed the existence of yield stress, a part of rheologycal behaviour of visco-elastic solution,
-was assumed to be originated so-called edge-face interaction \cite{sposito}\cite{adachi}\cite{sakairi}
+The author had proposed the property of yield stress, a part of rheologycal behaviour of visco-elastic solution,
+was assumed to be originated face-face interaction \cite{sposito}\cite{adachi}\cite{sakairi}.
 
 In, \cite{sakairi}, rather strong repulsive force between sheet like particles of Montmorillonite was assumed.
-This is implying wide range of propulsice force due to electrical double layers are dominative while the salt concentration was lower,
 
 
-An Ising model like numerical model was proposed to explain how each sheet like Montmorillonite particles arrayed in solution.
+\section{Theory}
+\subsection{1 Dimension Model}
+An Ising model like model was proposed to explain how each sheet like Montmorillonite particles arrayed in solution.
 From the theoretical point of statistical mechanics with classical manners, equillibrium state of large number of particles 
-are usually simulated by Ising model. This model assuming only one degree of freedom, of which values are 1 and -1, with 
-location of each particles are equally arranged.
+are usually simulated by Ising model. 
+This model assuming all particles in the system is located uniformly in the field with same distance, 
+and, only one degree of freedom, of which values are 1 and -1.
 While the interaction potential between particles are given with a coefficient $J$ and relatopnship between $i$ th and $j$ th particles.
 Thus the Hamiltonial, $H$, of the system is given by, $H = -J\sum_{i<j} s_is_j$, 
 where $\sum_{i<j}$ denoting summation over every possible combinations of particles.
 
-While Boltzmann factor a state is proportional to the probability of the system is in the state.
-In the subject system, the orientation of the particle is of interest, due to the assumption of E-F or F-F interaction is dominative.
-Therefore, each state of the system can be represented by combinations of particle orientation.
+Boltzmann factor of a state is proportional to the probability of the system is in the state.
+In the subject system, repulsive force from EDL and van der Waals atractive force is of interest. 
+These two forces would be dominative factors of particle alignment.
+Therefore we suppose each state of the system can be represented by combinations of particle orientation.
 If we assume, $s_i$ to be the orientation of the $i$ th particle in the system, the state of system can be described as a group with the representation of 
  $S = \{s_1, s_2, \cdots, s_n\}$.
 For the purpose of simplicity, $s_i$ has only two values as $s_i = s^{\pm}$. 
@@ -39,94 +42,223 @@ In this study, Gibbs sampling will be used for the calculation.
 If the $i$ th particle orientation is $s_i = s^+$ where $S' = \{s_i\}$, while the other particle orientation is given by
  $\bar{S} = {s_1, s_2, \cdots, s_{i-1}, s_{i+1}, \cdots, s_n}$, the probability of such state is given with conditional probabilyty as,
 $p(S'=s^+|\bar{S}) = 1 / (1 + e^{-2 J\beta (s_{i-1} + s_{i+1})})$\cite{Imada_Miyashita_stats_mech}. 
+This is a very popular formula for numerical simulations of Ising model.
+Trivially, the orientation of the spin is decided by spin states of neibourghing particles.
 
-However, such such expression of probability is assuming the particle geometry to be spherically symmertic, 
-while the shape of Montmorillonite particle is rather sheet like. 
-Since sheet like geometry is difficult to simulate by symmetrical geometry, we have introduced an auxualliary variable, $c$, to 
-change the weight of probability where the statistical mechanics naturally assuming the law of equipartition of energy.
-
-The variable of $i$ th patricle $s_i$ takes two values. On the other side, we assume the auxiallyary variable takes more than two values, 
-$C = \{c_1, c_2, \cdots, c_n\}$, $2 < c_i \in \mathbf{N}$. By using $c_i$ as a parameter to determine $s_i$ as,
-\begin{equation}
- s_i (c_i) = \left\{
-  \begin{aligned}
-   & s^+  (c_{\text{th}} < c_i), \\
-   & s^-  (c_i \leq c_{\text{th}}), 
-  \end{aligned}
-       \right.
-\end{equation}
-where $c_{\text{th}}$ is a parameter to chenge weight of probability.
-
-Introduction of this auxualliary valiable, we can violate low of equipartition of energy to simulate assymmetric geometry particles.
-For example, assuming $0 \leq c_i \leq 10$, $c_{\text{th}} = 1$, and if $c_i$ shows statistical behaviour, 
-the weight of the probability of $s_i$ shall not be symmetric; $p (s_i = s^+) = 1/10$, $p (s_i = s^-) = 9/10$, even though $p (c_i)$ shows uniform probability distribution.
-
-By using this auxalliary variable, Hamiltonian of the system is determined by $C$,
-\begin{equation}
- H (C) = - \sum J_{ij} (s_i(c_i)s_j(c_j)).
-\end{equation}
-
-Therefore, the conditional probability of $C' = c^J$ under a $\bar{C}$ state is given by,
-\begin{equation}
- p (C' = c^J|\bar{C}) = \frac{1}{1+\sum_{j=0, j\not= J}e^{-\beta J \left\{(s_i (c^j) - s_i (c^J))(s_{i-1} + s_{i+1})\right\}}}. 
-  \label{prob_accesory}
-\end{equation}
-
-In, eq. (\ref{prob_accesory}), interaction potential of EDL forces and van der Waals force are summerized in $J$.
-
-To make the effetiveness of the model, we are trying to make calculations by na\''{i}ve assumption for calculating the potential as,
-\begin{equation}
- J_{ij} = \frac{1}{D_{ij}} - \alpha e^{\kappa D_{ij}}.   \label{potential}
-\end{equation}
-Here, the first term of right side of eq. (\ref{potential}) representing van der Waals force, and the second denoting EDL forces, and $D_{ij}$ is 
-distance between $i$ th and $j$ th particles.
+Trying to apply these quite puplular theory to the subject  problem, the form of potential shall be defined at first.
+We also have assumed that only neibourghing particles affects the subject particle, and the balancing of EDL force and 
+van der Waals force is dominative.
+Very famous Debye-Huckel approximation, EDL force is represented by a exponetial function with a reluxation length, $\kappa$, 
+called as Debye length, and, van der Waals force is proportional to the particle distance.
+For simplicity, the potential between $i$ th and $j$ th particle
+might be in the form of $J_{ij} = 1/D_{ij} - \alpha e^{\kappa D_{ij}}$.
 
 As proposed in ref. \cite{adachi} and ref. \cite{sakairi}, the distance between particles are represented by $D = \delta (1/\phi - 1)$,
 where $D$, $\delta$, and $\phi$ is distance between particle centers assuming sheet like particles array in parallel, sheet like particle width,
  and, volume fraction of the suspension. This exression can be used in the case of F-F interaction. 
 When it comes to E-F interaction, we have a simplified assumtion that each particles are aligned in T-like array as shown in fig. XXX.
 If we assume sheetlike particle length to be $l$, distance between particles can be represented like $\delta (1/\phi - 1) - (l-\delta)/2$.
-The term $(1-\delta)/2$ reflects diminished interparticle distance of T-like aligned particles.
+The term $(l-\delta)/2$ reflects diminished interparticle distance of T-like aligned particles.
 Of course such assumption shall be regarded as over simplification, and some adjustment coefficient that reflecting to narrow interaction area
 between T-like alignment. However we suppose E-F interaction at quite lower ionic strength may cause spill-over effect as pointed in ref. \cite{sposito},
 furthermore, once the overlapping area of EDL is increased a little more, the evergy of the system shall be increased.
 
+
 By these assumtion, the interaction distance of neiboughing particles might be expressed as,
 \begin{equation}
- D_{ij} = \delta\left(1 - \frac{1}{\phi}\right) - (s_i + s_j)\frac{l-\delta}{2}.  \label{distance}
+ D_\text{s} = \delta\left(1 - \frac{1}{\phi}\right) - (s_i + s_j)\frac{l-\delta}{2}.  \label{distance}
 \end{equation}
 In this formula, we assumed any proper coodinate that we can put every particles in this corrdinate.
-The center to center particle distance is assumed to be $D$, and they are alocated in uniformly.
-Assuming, when $s_i = 0$, the particle is aligned vertical to the coordinate, and whem $s_i = 1$, the particle is aligned in horizontal to the corrdinate.
-Therefore, $(s_i, s_j) = (0, 0)$ coinsides F-F alignment,  $(s_i, s_j) = (1, 0)$ or $(s_i, s_j) = (0, 1)$ coincides E-F alignment, and $(s_i, s_j) = (1, 1)$ coincides E-F alignment.
 
-Substituting eq. (\ref{distance}) into eq. (\ref{potential}) yields,
+Making the discussion simple, we introduce a form of perturbation method to the particle distance as,
 \begin{equation}
- H (C) = \sum_{i<j} \left\{e^{-\kappa \bar{D}} - \frac{\alpha}{\bar{D}} + \kappa D_{\text{ex}}\left(s_i(c_i) + s_j(c_j)\right)\right\},
+ D_{\text{s}} = \bar{D} + \tilde{D} (s_i + s_j),
 \end{equation}
-where $D_{\text{ex}}$ is defined to be $(l + \delta) / 2$ and $\bar{D} = D - \delta$.
-This Hamiltonian formulation leads the following conditional probebility expression at $C' = c^J$ and the rest of the system state is $\bar{C}$. 
-Where $c^J$ means, the order parameter is in $J$ th state.
 \begin{equation}
- p(C'=c^J|\bar{C}) = \frac{1}{1 + e^{-2\beta J \{s_i (c_i) - s_i (c^J)\}}},  \label{conditional_prob}
+ \bar{D} = D - \delta,
 \end{equation}
-where, $J = \alpha \kappa e^{-\kappa D}$, and, simple perturbation was given that neglects 2nd order of $D_{\text{ex}}/\bar{D}$ and $D_{\text{ex}} / \bar{D}^2$.
-Also, 
 \begin{equation}
- J = \alpha \kappa e^{-\kappa \bar{D}}.
+ \tilde{D} = \frac{l - \delta}{2}.
+\end{equation}
+Since we assume a dilute suspension, $\tilde{D} / \bar{D}$ is sufficiently small that we can neglect its second order.
+
+Suppose summation over neibourghing particles as $\sum_{i<j}$, Hamiltonian of the system is,
+\begin{equation}
+ H(S) = \sum_{i<j} \left[\frac{a_1}{\bar{D} + \tilde{D}(s_i + s_j)}  - 
+		    a_2 e^{-\kappa \left\{\bar{D} + \tilde{D} (s_i + s_j)\right\}}\right].  \label{1d_H_orig}
 \end{equation}
 
-The form of eq. (\ref{conditional_prob}) is quite similar to that of Ising model of typical phase transition of magnetic material.
-This similarity insisting the state of sheet like colloidal suspension shows first order-phase transition.
+Since eq. (\ref{1d_H_orig}) seems to be complex on calculation of conditional probability, simple approximation will be introduced.
+The Hamiltonian of the system is composed of van der Waals force and EDL force.
+The subject system is assumed to be sufficiently dilute system, therefore van der Waals force is supposed to be smaller.
+Especially, if we give a series expansion of $D$ around $\bar{D}$ with $\tilde{D}$, the terms smaller than $\mathcal{O} (\tilde{D}/\bar{D})$
+might be smaller due to the characteristic of the formulation of van der Waals force to be proportional to $1/D$.
+Even though the fucntion $1/D$ shows expansional behaviour around 0, $D$ is sufficiently large that we can neglect the effect.
+Thus, $1/D \simeq 1/\bar{D}$.
+
+On the other hand, EDL force is rather longer influence due to expanded EDL on lower ionic strength.
+If $\tilde{D}$ is sufficiently smaller than $1/\kappa$, however, $\tilde{D}$ has on around 1nm size and $1/\kappa$ has also 1nm width.
+Therefore we cannot use such na\"{i}ve perturbation for EDL force.
+
+Following above manner, Hamiltonian is given as,
+\begin{equation}
+ H(S) = \sum_{i<j} \left[\frac{a_1}{\bar{D}} - a_2 e^{-\kappa \left\{\bar{D} + \tilde{D} (s_i + s_j)\right\}}\right].  \label{1d_H}
+\end{equation}
+
+Conditional probability of the subjectpartilcle when other particles' state is fixed is very important to understand 
+stochastic behaviour of the system and also statistic sampling.
+If we define a sub-set of the system, $S$, as $\tilde{S}$ and rest of $\tilde{S}$ as $\bar{S}$,
+$S = \bar{S} + \tilde{S}$. Assuming $\tilde{S} = \{s_i\}$, where $s_i$ indicating the state of $i$ th particle,
+the conditional probability of $s_i = s^+$ is $p(\tilde{S}=\{s^+\}|\bar{S}) = p(\tilde{S}=\{s^+\}, \bar{S}) / p (\bar{S})$.
+By marginalizing the joint probability distribution of $p(\tilde{S}, \bar{S})$ by $\tilde{S}$, 
+$p (\bar{S}) = \sum_{\tilde{S}} p(\tilde{S}, \bar{S})$. 
+Now $s_i = (s^+, s^-)$, and $p (\bar{S}) = p(\tilde{S} = p^+, \bar{S}) + p(\tilde{S} = p^-, \bar{S})$.
+Using Boltzmann factor, conditional probability is given as,
+\begin{equation}
+ p (\tilde{S} = s^+|\bar{S}) = 
+  \frac{1}{1 + e^{-\beta \Delta H}}, \label{1d_cond_prob}
+\end{equation}
+where, 
+\begin{equation}
+ \Delta H = e^{-\kappa \bar{D}} \left(e^{-\kappa \tilde{D} s_{i-1}} + e^{-\kappa \tilde{D} s_{i+1}}\right)
+  \left(e^{-\kappa \tilde{D} s_i^-} - e^{-\kappa \tilde{D} s_i^+}\right).  \label{1d_dH}
+\end{equation}.
+
+Eq. (\ref{1d_cond_prob}) and eq. (\ref{1d_dH}) saying that conditional probability is by states of neibourghing particles, 
+and, defference between probability of the state of the particles.
+
+When we assume, $s^- < s^+$, $p(\tilde{S} = s^-|\bar{S}) > 1/2$, and, $s^+ < s^-$, $p(\tilde{S} = s^-|\bar{S}) < 1/2$.
+Also $p(\tilde{S} = s^-|\bar{S}) + p(\tilde{S} = s^+|\bar{S}) = 1$ is easily obtained, and, is obaying the definition of the probability.
 
 
+\subsection{2 Dimension Model}
+Next, condidering into the dimensionality of the system, 2 dimension Ising model will be considered.
 
+As is in the 1 dimensional system, all particles are arrange uniformly in the lattice field with each particle distance is same.
+Applying des Cartes co-ordinate, the position of a particle is expressed as $(i, j)$ where $i, j \in \mathbf{N}$.
+
+Since the shape of the particle is sheet like and the system is 2 dimensional, the degree of freedom of the particle 
+might be two orientation. 
+As assumed in the 1 dimensional system, the value of each freedom can hold 2 values like 0 or 1.
+For example, if the value is in 1, the interparticle distance is narrow, while in 0, the particle distance is wide.
+These 2 degree of freedom can be expressed as $\bm{s} = (0, 1)$, $(1, 0)$, or $(1, 1)$.
+Due to the geometry of the particle is sheet like, $\bm{s}$ cannot be $(0, 0)$.
+
+By these assumntions, the state of the particle in postion of $(i, j)$ is expressed as $\bm{s}_{ij} = (s^0_{ij}, s^1_{ij}) \in \mathbf{N}^2$, 
+where $s^k_{ij} = 0$ or $1$.
+The system is expressed in the form of set as, $S = \{\bm{s}_{00}, \bm{s}_{01}, \cdots, \bm{s}_{ij}, \cdots \bm{s}_{N_xN_y}\}$, 
+where $N_x, N_y \in \mathbf{N}$
+
+Suppose the interaction of $\bm{s}_{ij}$ shall be condidered by calculation between $\bm{s}_{ij}$ and $\bm{s}_{i-1, j}$, 
+$\bm{s}_{i+1, j}$, $\bm{s}_{i, j-1}$, and, $\bm{s}_{i, j+1}$, Hatmiltonian of the system is geven by,
+\begin{equation}
+ H(S) = \sum_{i<l, j<m} \left[
+		a_1 e^{-\kappa \left\{\bar{D} + \tilde{D} \left(\bm{s}_{ij} + \bm{s}_{lm}\right)\right\}}
+		- \frac{a_2}{\bar{D}} 
+	      \right]
+\end{equation}
+
+As is same manner as 1 dimensional case, the sub-set with only one element is denoted as $S' = \{\bm{s}_{ij}\}$, and, 
+the complementary set of is denoted as $\bar{S} = S - S'$.
+
+Assuming when the particle of $S'$ is in a fixed state as $u$, $S' = \bm{s}^{\mspace{10mu}u}_{ij}$. As an example, $\bm{s}^{\mspace{10mu}u_1}_{ij} = (1, 1)$,
+ $\bm{s}^{\mspace{10mu}u_2}_{ij} = (1, 0)$, or, $\bm{s}^{\mspace{10mu}u_3}_{ij} = (0, 1)$.
+
+Trying to obtain conditional probability of $p(S'=\{\bm{s}^{\mspace{10mu}u_i}_{ij}\}|\bar{S})$, the total number of the freedom of the particle is 3,
+and, the probability shall be 
+$p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}) = p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}, \bar{S})/\sum_{l=1}^3 p(S'=\{\bm{s}^{\mspace{10mu}u_l}_{ij}\}, \bar{S})$
+This will easily lead to,
+\begin{equation}
+ p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}) = 
+  \frac{1}{1
+  + \frac{p(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}, \bar{S})}{p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}, \bar{S})}
+  + \frac{p(S'=\{\bm{s}^{\mspace{10mu}u_3}_{ij}\}, \bar{S})}{p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}, \bar{S})}}.
+\end{equation}
+
+The term of divergence of each joint probability is,
+\begin{equation}
+ \frac{p(S'=\{\bm{s}^{\mspace{10mu}u_m}_{ij}\}, \bar{S})}{p(S'=\{\bm{s}^{\mspace{10mu}u_l}_{ij}\}, \bar{S})}
+  = e^{-\beta\Xi(\sigma^{\mspace{10mu}u_m}_{ij} - \sigma^{\mspace{10mu}u_l}_{ij})}.
+\end{equation}
+Conditional probability is straightforwardly obtained as,
+\begin{equation}
+ p\left(S'=\{\bm{s}^{\mspace{10mu}u_l}_{ij}\}|\bar{S}\right) = 
+  \frac{1}{1
+  + e^{\beta\Xi\sigma^{\mspace{10mu}u_l}_{ij}}\left(
+					      e^{-\beta\Xi\sigma^{\mspace{10mu}u_m}_{ij}}
+					      + e^{-\beta\Xi\sigma^{\mspace{10mu}u_n}_{ij}}\right)
+  }, \label{2d_cond_prob}
+\end{equation}
+where,
+\begin{equation}
+ \Xi = \sigma_{i-1, j} + \sigma_{i, j-1} + \sigma_{i+1, j} + \sigma_{i, j+1},   \label{sum_neib_effect}
+\end{equation}
+\begin{equation}
+ \sigma_{ij} = e^{-\kappa (\bar{D} + \tilde{D}\bm{e}\cdot\bm{s}_{ij})},
+\end{equation}
+\begin{equation}
+ \sigma^{\mspace{10mu}u_l}_{ij} = e^{-\kappa (\bar{D} + \tilde{D}\bm{e}\cdot\bm{s}^{\mspace{10mu}u_l}_{ij})},
+\end{equation}
+and,
+\begin{equation}
+ \bm{e} = \bm{e}_x + \bm{e}_y.  \label{orth_basis}
+\end{equation}
+In, eq. (\ref{orth_basis}), $\bm{e}_x$ and $\bm{e}_y$ indicating $x$ and $y$ directional orthogonal basis.
+These expressions are just introduced for calculation matter.
+
+Eq. (\ref{sum_neib_effect}) is a summation over EDL interaction over neibourghing particles.
+As was seen in 1 dimensional case, the subject particle is affected by neibouring particles.
+
+Summation of $p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_1}\}) + p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_2}\}) + p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_3}\}) = 1$
+ is easily be confirmed. In another word, eq. (\ref{sum_neib_effect}) satisfies the condition of probability.
+
+An evaluation of conditional probability of $p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_1}\})$, $p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_2}\})$, and,
+$p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_3}\})$ will be shown below.
+Substituting actual particle state into $\sigma_{ij}^{\mspace{10mu}u_l}$ as $\bm{s}_{ij}^{\mspace{10mu}u_l} = (1, 1)$, 
+$\bm{s}_{ij}^{\mspace{10mu}u_2} = (1, 0)$, or, $\bm{s}_{ij}^{\mspace{10mu}u_3} = (0, 1)$,
+\begin{equation}
+ p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right) = 
+  \frac{1}{1
+  + 2e^{\beta\Xi\bar{\varphi}(\tilde{\varphi}^2 - \tilde{\varphi})}
+  }, \label{2d_cond_prob_u1}
+\end{equation}
+\begin{equation}
+ p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = p\left(S'=\{\bm{s}^{\mspace{10mu}u_3}_{ij}\}|\bar{S}\right) = 
+  \frac{1}{2
+  + e^{-\beta\Xi\bar{\varphi}(\tilde{\varphi}^2 - \tilde{\varphi})}
+  }, \label{2d_cond_prob_u2}
+\end{equation}
+where, 
+\begin{equation}
+ \bar{\varphi} = e^{-\kappa\bar{D}}, \tilde{\varphi} = e^{-\kappa\tilde{D}}, 
+\end{equation}
+was defined for simplicity of the mathematical expression.
+
+Evaluatiing maximum and minimum values of eq. (\ref{2d_cond_prob_u1}) and eq. (\ref{2d_cond_prob_u2}) yields following inequilities.
+\begin{equation}
+ 0 < p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right) < 
+  \frac{1}{1 + 2e^{-4\beta\Xi\tilde{\varphi}}}. \label{2d_p1_inequility}
+\end{equation}
+\begin{equation}
+ \frac{1}{2 + e^{4\beta\Xi\tilde{\varphi}}} < p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)
+ = p\left(S'=\{\bm{s}^{\mspace{10mu}u_3}_{ij}\}|\bar{S}\right) < \frac{1}{2}. \label{2d_p2_inequility}
+\end{equation}
+
+In eq. (\ref{2d_p1_inequility}), the maximum values of $p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right)$ is 
+limited to dinite value, and the minimum value is 0.
+On the other hand, eq. (\ref{2d_p2_inequility}) shows, the minimum value of $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)$ is
+a finite value, while the maximum value is $1/2$. 
+Since $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)$,
+when $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)$ takes maximum value, 
+say $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = 1$.
+Then, in that case, $p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right) = 0$.
 
 
 \begin{thebibliography}{99}
  \bibitem{adachi}  \textit{Trans. of JSIDRE}, \textit{No.} 200, \textit{pp.} 53-58 (1999. 4)
  \bibitem{sposito} Garrison Sposito, The Chemistry of Soils Second Edition, 
  \bibitem{sakairi} \textit{J. of Colloid and Interface Sci.}, \textit{Vol.} 283, \textit{Issue} 1, 1 March 2005, pp. 245-250
+ \bibitem{Hiemenz} Paul C. Hiemenz, and, Raj Rajagopalan, Principles of Colloid and Surface Chemistry, Revised and Expanded (UNDERGRADUATE CHEMISTRY SERIES), CRC Press
  \bibitem{Kubo}    R. Kubo, Statistical mechanics, Kyoritsu Shuppan (in Japanese)
  \bibitem{Imada_Miyashita_stats_mech} M. Imada, S. Miyashita, Univ. Tokyo Engineering Course Statitical Mechanics, Maruzen (in Japanese)
 \end{thebibliography}
