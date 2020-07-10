@@ -7,164 +7,107 @@
 using namespace std;
 
 parallelArray2D::parallelArray2D () {
+    n_spin_state = 3;
+    n_x   = 100;
+    n_y   = 2;
+    n_paticles = n_x * n_y;
 
-    LL = 20;
-    Kappa = 1.0;
-    CvdW  = 1.0;
+    //  allocate spin and spin record book
+    s.resize (n_paticles);
+    s_record_book.resize (n_paticles);
+    Sigma.resize (n_paticles);
+
+    IonicStrength = 0.01;
+    Phi   = 0.05;        //  volume fraction
+    Delta = 1.0e-09;     //  width of the particle
+    L     = 500.0e-09;   //  length of  th particle
+    Cexcl = 0.8;
 
     kB = 1.0;
     T  = 100;
-    Beta = kB * T;
-    Z  = obtainDistributionFunction ();
+    Beta = 1.0 / (kB * T);
+    
+    //  initialize geometrical parameters
+    Kappa = 0.304 / sqrt (IonicStrength) * 1.0e+09;
+    //Dbar = Delta * (1.0 / Phi - 1.0);    ///  1 dimensional case
+    Dbar = sqrt (2.0 * L * Delta / Phi) - 0.5 * Delta;
+    Dtil = 0.5 * (L - Delta) * Delta / L * Cexcl;
+    CvdW  = 0.0001;
+    Alpha = 1.0e+09;
+    
+    VerPhiBar = exp (-Kappa * Dbar);
+    VerPhiTil = exp (-Kappa * Dtil);
+    VerPhi    = VerPhiBar * (pow (VerPhiTil, 2) - VerPhiTil);
+    
 
-    //  allocate spin and spin record book
-    s.resize (LL);
-    for (i = 0; i < LL; i++)  s[i].resize (LL);
-    s_record_book.resize (LL);
-    for (i = 0; i < LL; i++) {
-        s_record_book[i].resize (LL);
-    }
+    cout << "initializin geometrical parameters" << endl;
+    cout << "  phi:   " << Phi << "(-)" << endl;
+    cout << "  kappa: " << Kappa * 1.0e+09 << "(m+9)" << endl;
+    cout << "  delta: " << Delta * 1.0e+09 << "(m-9)" << endl;
+    cout << "  l:     " << L * 1.0e+09 << "(m-9)" << endl;
+    cout << "  Dbar:  " << Dbar * 1.0e+09 << "(m-9)" << endl;
+    cout << "  Dtil:  " << Dtil * 1.0e+09 << "(m-9)" << endl;
+    cout << "  Kappa Dbar:    " << Kappa * Dbar << "(-)" << endl;
+    cout << "  Kappa Dtil:    " << Kappa * Dtil << "(-)" << endl;
+    cout << "  VerPhiBar:     " << VerPhiBar << "(-)" << endl;
+    cout << "  VerPhiTil:     " << VerPhiTil << "(-)" << endl;
+    cout << "  IonicStrength: " << IonicStrength << "(mol/L)" << endl;
+    cout << "  Alpha:   " << Alpha << "(-)" << endl << endl;
 
     // initialization with random spins
     initRandomSpins ();
+    initSigma ();
 
 
-
-}
-
-double parallelArray2D::obtainDistributionFunction () {
-    //  Z = sum exp (-Beta H (s))
-    return 1.0;
-//    for (i = 0; i < LL; i++) {
-//        for (j = 0; j < LL; j++) {
-//            for (k = 0; k < LL; k++) {
-//                for (l = 0; l < LL; l++) {
-
-//                }
-//            }
-//        }
-
-//    }
 }
 
 
 void parallelArray2D::initRandomSpins () {
-    for (i = 0; i < LL; i++) {
-        for (j = 0; j < LL; j++) {
-            s[i][j] = rand () % 2;
-            cout << s[i][j] << " ";
+    for (i = 0; i < n_paticles; i++)  s[i] = rand () % n_spin_state;
+}
+
+
+void parallelArray2D::printSpinState () {
+    cout << "state of spin" << endl;
+    for (i_y = 0; i_y < n_y; i_y++) {
+        cout << "  ";
+        for (i_x = 0; i_x < n_x; i_x++) {   
+            //cout << s[obtainOneDimPosFromTwoDimPos (i_x, i_y)];
+            cout << Sigma[obtainOneDimPosFromTwoDimPos (i_x, i_y)];
         }
         cout << endl;
-    }
 
+    }
 }
 
-void parallelArray2D::perturbSpinDistributionWithGibbsSampling () {
-    int i_sample, i_one_hot, j_one_hot;
-
-    //  initialize spin recordbook
-    for (i = 0; i < LL; i++) {
-        for (j = 0; j < LL; j++)  s_record_book[i][j] = 0;
-    }
-    
-    //  choose which spin to move
-    for (i = 0; ; i++) {
-        i_sample = rand () % (int) pow (LL, 2);
-        i_one_hot = i_sample / LL;
-        j_one_hot = i_sample % LL;
-        if (s_record_book[i_one_hot][j_one_hot] == 1) continue;
-        else break;
-    }
-
-    //  evaluate if spin direction to be moved
-
-
-
-
-}
-
-void parallelArray2D::obtainHamiltonian () {
-    // boundary condition
-    cout << "set cyclic boundary condition" << endl;
-    obtainCyclicBoundaryCondition ();
-    printHamiltonianAndSpinStatus ();
-    cout << "finished to set cyclic boundary condition" << endl;
-
-    //  calculating Hamiltonian
-    cout << "start to calculate Hamiltonian" << endl;
-    H = 0.0;
-    cout << "initialize Hamiltonian" << endl;
-    for (i = 1; i < LL - 1; i++) {
-        for (j = 1; j < LL - 1; j++) {
-            //cout << "hoge" << endl;
-            //    cout << "in i = " << i << ", j = " << j << ", s = " << s[i][j] << endl;
-            for (k = 0; k < LL; k++) {
-                for (l = 0; l < LL; l++) {
-                    H += (obtainVanDerWaalsInteractionDiscrete2D (i, j, j, l) +
-                        obtainEDLInteractionDiscrete2D (i, j, k, l)) * s[i][j] * s[k][l];
-                }
-            }
+void parallelArray2D::initSigma () {
+    cout << "calc sigma" << endl;
+    for (i_y = 0; i_y < n_y; i_y++) {
+        for (i_x = 0; i_x < n_x; i_x++) {
+            Sigma[obtainOneDimPosFromTwoDimPos (i_x, i_y)] 
+                = obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x - 1, i_y)])
+                + obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x + 1, i_y)])
+                + obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x, i_y - 1)])
+                + obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x, i_y + 1)]);
+            cout << "  sigma " << i_x << " " << i_y  << " " << Sigma[obtainOneDimPosFromTwoDimPos (i_x - 1, i_y)] << endl;
         }
     }
-}
-
-double parallelArray2D::obtainProbability (double H) {
-    return exp (-1.0 * Beta * H) / Z;
 
 }
 
-void parallelArray2D::obtainCyclicBoundaryCondition () {
-    //  cyclic boundary condition 
-    for (i = 0; i < LL; i++) s[i][0]      = s[i][LL - 2];
-    for (i = 0; i < LL; i++) s[i][LL - 1] = s[i][1];
-    for (j = 0; j < LL; j++) s[0][j]      = s[LL - 2][j];
-    for (j = 0; j < LL; j++) s[LL - 1][j] = s[1][j];
+inline double parallelArray2D::obtainCondProb23 (int i) {
+    return 1.0 / (2.0 + exp (Beta * obtainSigmaFromSpin (s[i]) * VerPhiBar * (VerPhi - pow (VerPhiTil, 2))));
 }
 
-
-void parallelArray2D::printHamiltonianAndSpinStatus () {
-    cout << "Hamiltonian: " << H << endl;
-    cout << "Spin status:" << endl;
-    for (i = 0; i < LL; i++) {
-        for (j = 0; j < LL; j++) {
-            cout << s[i][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << "End spin status:" << endl;
+inline double parallelArray2D::obtainCondProb1 (int i) {
+    return 1.0 / (1.0 + 2.0 * exp(Beta * obtainSigmaFromSpin (s[i]) * VerPhiBar * (pow (VerPhiTil, 2) - VerPhiTil)));
 }
 
-
-
-double parallelArray2D::obtainD1DistanceDiscrete1D (int x1, int x2) {
-    if (x1 == x2) {
-        return 0.0;
-    } else {
-        return 1.0;
-    }
+inline double parallelArray2D::obtainSigmaFromSpin (double s) {
+    return VerPhiBar * VerPhiTil * ((s != 2) * 1.0 + (s == 2) * VerPhiTil);
 }
 
-double parallelArray2D::obtainD1DistanceDiscrete2D (int x1, int y1, int x2, int y2) {
-    if (x1 == x2 && y1 == y2) {
-        return 0.0;
-    } else {
-        return 1.0;
-    }
-}
+inline int parallelArray2D::obtainOneDimPosFromTwoDimPos (int i_x, int i_y) {
+    return i_y * n_x + i_x;
 
-
-double parallelArray2D::obtainEDLInteractionDiscrete2D (int x1, int y1, int x2, int y2) {
-    return obtainD1DistanceDiscrete2D (x1, y1, x2, y2) * exp (-1.0 * Kappa * obtainD2DistanceDiscrete2D (x1, y1, x2, y2));
-
-}
-
-
-
-double parallelArray2D::obtainVanDerWaalsInteractionDiscrete2D (int x1, int y1, int x2, int y2) {
-    return -1.0 * obtainD1DistanceDiscrete2D (x1, y1, x2, y2) * CvdW / (obtainD2DistanceDiscrete2D (x1, y1, x2, y2) + 0.001);
-
-}
-
-double parallelArray2D::obtainD2DistanceDiscrete2D (int x1, int y1, int x2, int y2) {
-    return sqrt (pow ((double) (x1 - x2), 2) + pow ((double) (y1 - y2), 2));
 }

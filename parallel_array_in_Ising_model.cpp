@@ -6,11 +6,11 @@
 
 int main () {
     int i;
-    parallelArray1D Domain1;
+    parallelArray2D Domain1;
     
     //  perturvation against H with Gibbs sampling
 
-    Domain1.executeGibbsSampling ();
+    Domain1.printSpinState ();
 
 
     return 0;
