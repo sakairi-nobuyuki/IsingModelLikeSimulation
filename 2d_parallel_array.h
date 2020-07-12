@@ -4,7 +4,7 @@
 using namespace std;
 class parallelArray2D {
     protected:
-        int n_x, n_y, n_paticles, n_spin_state;
+        int n_x, n_y, n_particles, n_spin_state;
         int i_x, i_y, i, j, k, l;
         double D, Dbar, Dtil, Phi, Delta, L, Cexcl;
         double VerPhiTil, VerPhiBar, VerPhi;
@@ -19,12 +19,16 @@ class parallelArray2D {
         void initRandomSpins ();
         void initSigma ();
         void obtainCyclicBoundaryCondition ();
+
+        void obtainHamiltonian ();
+        void applyCyclicBoundaryCondition ();        
         double obtainSigmaFromSpin (double s);
         double obtainCondProb1 (int i);
         double obtainCondProb23 (int i);
     public:
         parallelArray2D ();
         
+        void executeGibbsSampling2D ();
         void printSpinState ();
-        
+        void obtainJointProbability ();
 };
