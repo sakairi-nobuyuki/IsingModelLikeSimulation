@@ -9,7 +9,8 @@ int main () {
     parallelArray2D Domain1;
     
     //  perturvation against H with Gibbs sampling
-    Domain1.obtainJointProbability ();
+    Domain1.executeSimulatedAnnealing ();
+    //Domain1.obtainJointProbability ();
     //Domain1.printSpinState ();
 
 
