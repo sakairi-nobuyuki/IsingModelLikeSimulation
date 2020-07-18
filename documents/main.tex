@@ -144,114 +144,142 @@ For example, if the value is in 1, the interparticle distance is narrow, while i
 These 2 degree of freedom can be expressed as $\bm{s} = (0, 1)$, $(1, 0)$, or $(1, 1)$.
 Due to the geometry of the particle is sheet like, $\bm{s}$ cannot be $(0, 0)$.
 
-By these assumntions, the state of the particle in postion of $(i, j)$ is expressed as $\bm{s}_{ij} = (s^0_{ij}, s^1_{ij}) \in \mathbf{N}^2$, 
-where $s^k_{ij} = 0$ or $1$.
-The system is expressed in the form of set as, $S = \{\bm{s}_{00}, \bm{s}_{01}, \cdots, \bm{s}_{ij}, \cdots \bm{s}_{N_xN_y}\}$, 
+By these assumntions, the state of the particle in postion of $(i, j)$ is expressed as 
+$\bm{s}_{i}^{\mspace{10mu}j} = (s_{i\mspace{10mu}0}^{\mspace{10mu}j}, s_{i\mspace{10mu}1}^{\mspace{10mu}j}) \in \mathbf{N}^2$, 
+where $s_{i\mspace{10mu}k}^{\mspace{10mu}j} = 0$ or $1$.
+The system is expressed in the form of set as, 
+$S = \{\bm{s}_{0}^{\mspace{10mu}0}, \bm{s}_{0}^{\mspace{10mu}1}, \cdots, \bm{s}_{i}^{\mspace{10mu}j},\cdots,  \bm{s}_{N_x}^{\mspace{10mu}N_y}\}$, 
 where $N_x, N_y \in \mathbf{N}$
 
-Suppose the interaction of $\bm{s}_{ij}$ shall be condidered by calculation between $\bm{s}_{ij}$ and $\bm{s}_{i-1, j}$, 
-$\bm{s}_{i+1, j}$, $\bm{s}_{i, j-1}$, and, $\bm{s}_{i, j+1}$, Hatmiltonian of the system is geven by,
+Since interaction between two particles in 2 or higher spatial dimension is defined by a function of distance, the interaction force between two particles
+ shall be determined by a distance function.
+Euclid distance, $d_s$, seems to be a realistic distance function. 
+If we write positions of two particles as, $\bm{r}_{i}^{\mspace{10mu}j}$, and $\bm{r}_{l}^{\mspace{10mu}m}$, the distance will be 
+$d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{l}^{\mspace{10mu}m})$. 
+Implicitly, each spins are alocated on position $\bm{r}_{i}^{\mspace{10mu}j}$, and, the spin of the particle is $\bm{s}_{i}^{\mspace{10mu}j}$.
+Thus, EDL interaction is assumed to be proportional to $e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{l}^{\mspace{10mu}m})}$.
+
+However we are now assuming the interaction force is acting between neibourghing particles, therefore the Euclid distance is easily simplified to
+ $x$-directional and $y$-directional neibourghing components as 
+\begin{equation}
+ d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{l}^{\mspace{10mu}m}) = \bar{D} - \tilde{D} \bm{e}(\bm{s}_{i}^{\mspace{10mu}j} + \bm{s}_{l}^{\mspace{10mu}m}),   \label{Euclid_dist}
+\end{equation}
+where, $\bm{e} = \delta^{il}\bm{e}_x +  \delta_{jm}\bm{e}_y$, and, $\bm{e}_x = (1, 0)$, $\bm{e}_y = (0, 1)$, and, $\delta_{il}$ means Kronecker's delta.
+
+Suppose the interaction of $\bm{s}_{i}^{\mspace{10mu}j}$ shall be condidered by calculation between $\bm{s}_{i}^{\mspace{10mu}j}$ and $\bm{s}_{i-1}^{\mspace{20mu}j}$, 
+$\bm{s}_{i+1}^{\mspace{20mu}j}$, $\bm{s}_{i}^{\mspace{10mu}j-1}$, and, $\bm{s}_{i}^{\mspace{10mu}j+1}$, Hatmiltonian of the system is geven by,
 \begin{equation}
  H(S) = \sum_{i<l, j<m} \left[
-		a_1 e^{-\kappa \left\{\bar{D} + \tilde{D} \left(\bm{s}_{ij} + \bm{s}_{lm}\right)\right\}}
-		- \frac{a_2}{\bar{D}} 
-	      \right]
+		a_1 e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{j}^{\mspace{10mu}m})} 
+		- \frac{a_2}{d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{j}^{\mspace{10mu}m})} 
+	      \right].
 \end{equation}
+
+Expanding this equation with ignoring van der Waals force yielding , 
+\begin{equation}
+  \begin{aligned}
+    H (S) = a_1 \left\{\right.&e^{-\kappa d_2 (\bm{r}_{1}^{\mspace{10mu}1}, \bm{r}_{0}^{\mspace{10mu}1})}
+   + e^{-\kappa d_2 (\bm{r}_{1}^{\mspace{10mu}1}, \bm{r}_{1}^{\mspace{10mu}0})} 
+   + e^{-\kappa d_2 (\bm{r}_{1}^{\mspace{10mu}1}, \bm{r}_{2}^{\mspace{10mu}1})} 
+   + e^{-\kappa d_2 (\bm{r}_{1}^{\mspace{10mu}1}, \bm{r}_{1}^{\mspace{10mu}2})} \\
+   &+ \cdots \\
+   &+ e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i-1}^{\mspace{10mu}j})} 
+   + e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i}^{\mspace{10mu}j-1})} 
+   + e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i+1}^{\mspace{10mu}j})} 
+   + e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i}^{\mspace{10mu}j+1})} \\
+   &+ \cdots \\
+   &+ e^{-\kappa d_2 (\bm{r}_{N_x}^{\mspace{10mu}N_y}, \bm{r}_{N_x-1}^{\mspace{10mu}N_y})} 
+   + e^{-\kappa d_2 (\bm{r}_{N_x}^{\mspace{10mu}N_y}, \bm{r}_{N_x}^{\mspace{10mu}N_y-1})} 
+   + e^{-\kappa d_2 (\bm{r}_{N_x}^{\mspace{10mu}N_y}, \bm{r}_{N_x+1}^{\mspace{10mu}N_y})} 
+   + e^{-\kappa d_2 (\bm{r}_{N_x}^{\mspace{10mu}N_y}, \bm{r}_{N_x}^{\mspace{10mu}N_y+1})}\left.\right\}
+  \end{aligned}
+\end{equation}
+
+Looking into a particle located on $(i, j)$, the formulation can be translated to explicitl expression by using 
+eq. (\ref{Euclid_dist}),
+\begin{equation}
+ \begin{aligned}
+ h_i & (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i-1}^{\mspace{10mu}j}, \bm{r}_{i+1}^{\mspace{10mu}j}, \bm{r}_{i}^{\mspace{10mu}j-1}, \bm{r}_{i}^{\mspace{10mu}j+1})\\
+  & = e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i-1}^{\mspace{10mu}j})} 
+   + e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i}^{\mspace{10mu}j-1})} 
+   + e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i+1}^{\mspace{10mu}j})} 
+   + e^{-\kappa d_2 (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i}^{\mspace{10mu}j+1})}  \\
+  & = 
+  e^{-\kappa \bar{D}}\left\{
+  e^{-\kappa \tilde{D}\bm{e}_y\cdot(\bm{s}_{i}^{\mspace{10mu}j} + \bm{s}_{i-1}^{\mspace{10mu}j})}
+  + e^{-\kappa \tilde{D}\bm{e}_y\cdot(\bm{s}_{i}^{\mspace{10mu}j} + \bm{s}_{i+1}^{\mspace{10mu}j})}
+  + e^{-\kappa \tilde{D}\bm{e}_x\cdot(\bm{s}_{i}^{\mspace{10mu}j} + \bm{s}_{i}^{\mspace{10mu}j-1})}
+  + e^{-\kappa \tilde{D}\bm{e}_x\cdot(\bm{s}_{i}^{\mspace{10mu}j} + \bm{s}_{i}^{\mspace{10mu}j+1})}\right\} \\
+  & = 
+  e^{-\kappa \bar{D}}\left\{
+  e^{-\kappa \tilde{D}\bm{e}_y\cdot\bm{s}_{i}^{\mspace{10mu}j}}
+  \left(
+  e^{-\kappa \tilde{D}\bm{e}_y\cdot\bm{s}_{i-1}^{\mspace{10mu}j}}
+  + e^{-\kappa \tilde{D}\bm{e}_y\cdot\bm{s}_{i+1}^{\mspace{10mu}j}}
+  \right)
+  + e^{-\kappa \tilde{D}\bm{e}_x\cdot\bm{s}_{i}^{\mspace{10mu}j}}
+  \left(
+  e^{-\kappa \tilde{D}\bm{e}_x\cdot\bm{s}_{i}^{\mspace{10mu}j-1}}
+  + e^{-\kappa \tilde{D}\bm{e}_x\cdot\bm{s}_{i}^{\mspace{10mu}j+1}}
+  \right)
+  \right\}  \label{part_H}
+ \end{aligned}
+\end{equation}
+
+Since the particle state is defined by sheet like particle orientation as $(1, 0)$, $(0, 1)$, or, $(1, 1)$, 
+the distance term can be simplified by putting the exponential function of $\bm{s}$ to be out of the function as 
+$e^{\kappa\tilde{D}\bm{e}_y\cdot\bm{s}_i^{\mspace{5mu}j}} = 1-(1-e^{-\kappa\tilde{D}})\bm{e}_y\cdot\bm{s}_i^{\mspace{5mu}j}$.
+This yields,
+\begin{equation}
+\begin{aligned}
+ h_i & (\bm{r}_{i}^{\mspace{10mu}j}, \bm{r}_{i-1}^{\mspace{10mu}j}, \bm{r}_{i+1}^{\mspace{10mu}j}, \bm{r}_{i}^{\mspace{10mu}j-1}, \bm{r}_{i}^{\mspace{10mu}j+1})\\
+ = & e^{-\kappa\bar{D}}
+  \left[
+   (1 - \Upsilon\bm{e}_y\cdot\bm{s}_i^{\mspace{5mu}j})
+   \left\{2 - \Upsilon\bm{e}_y\cdot(\bm{s}_{i-1}^{\mspace{5mu}j} + \bm{s}_{i+1}^{\mspace{5mu}j})\right\}\right. \\
+   & \left.+ (1 - \Upsilon\bm{e}_x\cdot\bm{s}_i^{\mspace{5mu}j})
+   \left\{2 - \Upsilon\bm{e}_x\cdot(\bm{s}_{i}^{\mspace{5mu}j-1} + \bm{s}_{i}^{\mspace{5mu}j+1})\right\}
+  \right],
+\end{aligned}
+\end{equation}
+where, $\Upsilon = 1-e^{\kappa\tilde{D}}$.
 
 As is same manner as 1 dimensional case, the sub-set with only one element is denoted as $S' = \{\bm{s}_{ij}\}$, and, 
 the complementary set of is denoted as $\bar{S} = S - S'$.
 
-Assuming when the particle of $S'$ is in a fixed state as $u$, $S' = \bm{s}^{\mspace{10mu}u}_{ij}$. As an example, $\bm{s}^{\mspace{10mu}u_1}_{ij} = (1, 1)$,
- $\bm{s}^{\mspace{10mu}u_2}_{ij} = (1, 0)$, or, $\bm{s}^{\mspace{10mu}u_3}_{ij} = (0, 1)$.
+Assuming when the particle of $S'$ is in a fixed state as $u$, $S' = \bm{s}_{i\mspace{7mu}u}^{\mspace{5mu}j}$. 
+As an example, $\bm{s}_{i\mspace{7mu}1}^{\mspace{5mu}j} = (1, 0)$,
+ $\bm{s}_{i\mspace{7mu}2}^{\mspace{5mu}j} = (1, 0)$, or, $\bm{s}_{i\mspace{7mu}3}^{\mspace{5mu}j} = (1, 1)$.
 
-Trying to obtain conditional probability of $p(S'=\{\bm{s}^{\mspace{10mu}u_i}_{ij}\}|\bar{S})$, the total number of the freedom of the particle is 3,
+Trying to obtain conditional probability of $p(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}|\bar{S})$, the total number of the freedom of the particle is 3,
 and, the probability shall be 
-$p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}) = p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}, \bar{S})/\sum_{l=1}^3 p(S'=\{\bm{s}^{\mspace{10mu}u_l}_{ij}\}, \bar{S})$
+$p(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}|\bar{S}) = p(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}, \bar{S})/\sum_{\mu} p(S'=\{\bm{s}_{i\mspace{7mu}u_{\mu}}^{\mspace{5mu}j}\}, \bar{S})$
 This will easily lead to,
 \begin{equation}
- p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}) = 
+ p(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}|\bar{S}) = 
   \frac{1}{1
-  + \frac{p(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}, \bar{S})}{p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}, \bar{S})}
-  + \frac{p(S'=\{\bm{s}^{\mspace{10mu}u_3}_{ij}\}, \bar{S})}{p(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}, \bar{S})}}.
+  + \frac{p(S'=\{\bm{s}_{i\mspace{7mu}u_{\eta}}^{\mspace{5mu}j}\}, \bar{S})}{p(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}, \bar{S})}
+  + \frac{p(S'=\{\bm{s}_{i\mspace{7mu}u_{\zeta}}^{\mspace{5mu}j}\}, \bar{S})}{p(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}, \bar{S})}}.
 \end{equation}
 
 The term of divergence of each joint probability is,
 \begin{equation}
- \frac{p(S'=\{\bm{s}^{\mspace{10mu}u_m}_{ij}\}, \bar{S})}{p(S'=\{\bm{s}^{\mspace{10mu}u_l}_{ij}\}, \bar{S})}
-  = e^{-\beta\Xi(\sigma^{\mspace{10mu}u_m}_{ij} - \sigma^{\mspace{10mu}u_l}_{ij})}.
-\end{equation}
-Conditional probability is straightforwardly obtained as,
-\begin{equation}
- p\left(S'=\{\bm{s}^{\mspace{10mu}u_l}_{ij}\}|\bar{S}\right) = 
-  \frac{1}{1
-  + e^{\beta\Xi\sigma^{\mspace{10mu}u_l}_{ij}}\left(
-					      e^{-\beta\Xi\sigma^{\mspace{10mu}u_m}_{ij}}
-					      + e^{-\beta\Xi\sigma^{\mspace{10mu}u_n}_{ij}}\right)
-  }, \label{2d_cond_prob}
-\end{equation}
-where,
-\begin{equation}
- \Xi = \sigma_{i-1, j} + \sigma_{i, j-1} + \sigma_{i+1, j} + \sigma_{i, j+1},   \label{sum_neib_effect}
-\end{equation}
-\begin{equation}
- \sigma_{ij} = e^{-\kappa (\bar{D} + \tilde{D}\bm{e}\cdot\bm{s}_{ij})},
-\end{equation}
-\begin{equation}
- \sigma^{\mspace{10mu}u_l}_{ij} = e^{-\kappa (\bar{D} + \tilde{D}\bm{e}\cdot\bm{s}^{\mspace{10mu}u_l}_{ij})},
-\end{equation}
-and,
-\begin{equation}
- \bm{e} = \bm{e}_x + \bm{e}_y.  \label{orth_basis}
-\end{equation}
-In, eq. (\ref{orth_basis}), $\bm{e}_x$ and $\bm{e}_y$ indicating $x$ and $y$ directional orthogonal basis.
-These expressions are just introduced for calculation matter.
-
-Eq. (\ref{sum_neib_effect}) is a summation over EDL interaction over neibourghing particles.
-As was seen in 1 dimensional case, the subject particle is affected by neibouring particles.
-
-Summation of $p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_1}\}) + p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_2}\}) + p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_3}\}) = 1$
- is easily be confirmed. In another word, eq. (\ref{sum_neib_effect}) satisfies the condition of probability.
-
-An evaluation of conditional probability of $p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_1}\})$, $p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_2}\})$, and,
-$p(S'=\{\bm{s}_{ij}^{\mspace{10mu}u_3}\})$ will be shown below.
-Substituting actual particle state into $\sigma_{ij}^{\mspace{10mu}u_l}$ as $\bm{s}_{ij}^{\mspace{10mu}u_l} = (1, 1)$, 
-$\bm{s}_{ij}^{\mspace{10mu}u_2} = (1, 0)$, or, $\bm{s}_{ij}^{\mspace{10mu}u_3} = (0, 1)$,
-\begin{equation}
- p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right) = 
-  \frac{1}{1
-  + 2e^{\beta\Xi\bar{\varphi}(\tilde{\varphi}^2 - \tilde{\varphi})}
-  }, \label{2d_cond_prob_u1}
-\end{equation}
-\begin{equation}
- p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = p\left(S'=\{\bm{s}^{\mspace{10mu}u_3}_{ij}\}|\bar{S}\right) = 
-  \frac{1}{2
-  + e^{-\beta\Xi\bar{\varphi}(\tilde{\varphi}^2 - \tilde{\varphi})}
-  }, \label{2d_cond_prob_u2}
-\end{equation}
-where, 
-\begin{equation}
- \bar{\varphi} = e^{-\kappa\bar{D}}, \tilde{\varphi} = e^{-\kappa\tilde{D}}, 
-\end{equation}
-was defined for simplicity of the mathematical expression.
-
-Evaluatiing maximum and minimum values of eq. (\ref{2d_cond_prob_u1}) and eq. (\ref{2d_cond_prob_u2}) yields following inequilities.
-\begin{equation}
- 0 < p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right) < 
-  \frac{1}{1 + 2e^{-4\beta\Xi\tilde{\varphi}}}. \label{2d_p1_inequility}
-\end{equation}
-\begin{equation}
- \frac{1}{2 + e^{4\beta\Xi\tilde{\varphi}}} < p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)
- = p\left(S'=\{\bm{s}^{\mspace{10mu}u_3}_{ij}\}|\bar{S}\right) < \frac{1}{2}. \label{2d_p2_inequility}
+ \frac{p(S'=\{\bm{s}_{i\mspace{7mu}u_{\eta}}^{\mspace{5mu}j}\}, \bar{S})}{p(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}, \bar{S})}
+  = e^{-\beta\left\{H\left(S'=\{\bm{s}_{i\mspace{7mu}u_{\eta}}^{\mspace{5mu}j}\}, \bar{S}\right)
+	     - H\left(S'=\{\bm{s}_{i\mspace{7mu}u_{\eta}}^{\mspace{5mu}j}\}, \bar{S}\right)\right\}}.
 \end{equation}
 
-In eq. (\ref{2d_p1_inequility}), the maximum values of $p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right)$ is 
-limited to dinite value, and the minimum value is 0.
-On the other hand, eq. (\ref{2d_p2_inequility}) shows, the minimum value of $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)$ is
-a finite value, while the maximum value is $1/2$. 
-Since $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)$,
-when $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right)$ takes maximum value, 
-say $p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = p\left(S'=\{\bm{s}^{\mspace{10mu}u_2}_{ij}\}|\bar{S}\right) = 1$.
-Then, in that case, $p\left(S'=\{\bm{s}^{\mspace{10mu}u_1}_{ij}\}|\bar{S}\right) = 0$.
+The difference of Hamiltonian will be,
+\begin{equation}
+ \begin{aligned}
+    H(S'=\{\bm{s}_{i\mspace{7mu}u_{\eta}}^{\mspace{5mu}j}\}, \bar{S})
+  - &H(S'=\{\bm{s}_{i\mspace{7mu}u_{\xi}}^{\mspace{5mu}j}\}, \bar{S}) \\
+   = e^{-\kappa\bar{D}}\Upsilon(\bm{s}_{i\mspace{5mu}u_{\eta}}^{\mspace{5mu}j} - \bm{s}_{i\mspace{5mu}u_{\xi}}^{\mspace{5mu}j})\cdot
+  &\left[\bm{e}_y\{2 - \Upsilon\bm{e}_y\cdot(\bm{s}_{i-1}^{\mspace{5mu}j} + \bm{s}_{i+1}^{\mspace{5mu}j})\}\right.\\
+  &\left.+ \bm{e}_x\{2 - \Upsilon\bm{e}_x\cdot(\bm{s}_{i}^{\mspace{5mu}j-1} + \bm{s}_{i}^{\mspace{5mu}j+1})\}\right]
+ \end{aligned}
+\end{equation}
+
 
 
 \begin{thebibliography}{99}
