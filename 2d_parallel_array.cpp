@@ -9,8 +9,8 @@ using namespace std;
 
 parallelArray2D::parallelArray2D () {
     n_spin_state = 3;
-    n_x   = 10;
-    n_y   = 10;
+    n_x   = 5;
+    n_y   = 5;
     n_particles = n_x * n_y;
     
     //  allocate spin and spin record book
@@ -64,6 +64,9 @@ parallelArray2D::parallelArray2D () {
     cout << "  VerPhiTil:     " << VerPhiTil << "(-)" << endl;
     cout << "  IonicStrength: " << IonicStrength << "(mol/L)" << endl;
     cout << "  Alpha:   " << Alpha << "(-)" << endl << endl;
+    cout << "  s_u1:    " << "[" << s_gen[0][0] << ", " << s_gen[0][1] << "]" << endl;
+    cout << "  s_u2:    " << "[" << s_gen[1][0] << ", " << s_gen[1][1] << "]" << endl;
+    cout << "  s_u3:    " << "[" << s_gen[2][0] << ", " << s_gen[2][1] << "]" << endl;
 
     // initialization with random spins
     initRandomSpins ();
@@ -143,10 +146,28 @@ double parallelArray2D::obtainHamiltonian (vector<int>& spin) {
     applyCyclicBoundaryCondition ();
     cout << "finished cyclic Boundary Condition" << endl;
     Hamiltonian = 0.0;
-    for (i = n_x; i < n_particles - (n_x + 1); i++) {
-        Hamiltonian += (1.0 - VerPhiTil * s_gen[spin[i]][1]) * (2.0 - VerPhiTil * (s_gen[spin[i - 1]][1]) + s_gen[spin[i + 1]][1])
-        + (1.0 - VerPhiTil * s_gen[spin[i]][0]) * (2.0 - VerPhiTil * (s_gen[spin[i - n_x]][0]) + s_gen[spin[i + n_x]][0]);
-        cout << "H: " << Hamiltonian << " s: " << spin[i] << endl;
+    //for (i = n_x; i < n_particles - n_x; i++) {
+    for (j = 1; j < n_y - 1; j++) {
+        for (i = 1; i < n_x - 1; i++) {
+            Hamiltonian += 
+                (1.0 - VerPhiTil * s_gen[spin[obtainOneDimPosFromTwoDimPos (i, j)]][1]) 
+                    * (2.0 - VerPhiTil * (s_gen[spin[obtainOneDimPosFromTwoDimPos (i - 1, j)]][1]) 
+                    *                   + s_gen[spin[obtainOneDimPosFromTwoDimPos (i + 1, j)]][1])
+                + (1.0 - VerPhiTil * s_gen[spin[obtainOneDimPosFromTwoDimPos (i, j)]][0]) 
+                    * (2.0 - VerPhiTil * (s_gen[spin[obtainOneDimPosFromTwoDimPos (i, j - 1)]][0]) 
+                    *                   + s_gen[spin[obtainOneDimPosFromTwoDimPos (i, j + 1)]][0]);
+            //cout << "i: " << obtainOneDimPosFromTwoDimPos (i, j);
+            //cout << ", i neib " <<  obtainOneDimPosFromTwoDimPos (i-1, j) << ", " << obtainOneDimPosFromTwoDimPos (i+1, j);
+            //cout << ", " << obtainOneDimPosFromTwoDimPos (i, j-1) << ", " << obtainOneDimPosFromTwoDimPos (i, j+1) << endl;
+            //cout << " s: " << spin[obtainOneDimPosFromTwoDimPos (i, j)];
+            //cout << ", s neib: " << spin[obtainOneDimPosFromTwoDimPos (i-1, j)] << ", " << spin[obtainOneDimPosFromTwoDimPos (i+1, j)];
+            //cout << ", " << spin[obtainOneDimPosFromTwoDimPos (i, j-1)] << ", " << spin[obtainOneDimPosFromTwoDimPos (i, j+1)]<< endl;
+            //cout << " e_y s i-1 j: " << s_gen[spin[obtainOneDimPosFromTwoDimPos (i-1, j)]][1];
+            //cout << ", e_y s i+1 j: " << s_gen[spin[obtainOneDimPosFromTwoDimPos (i+1, j)]][1] << endl;
+            //cout << " e_x s i j-1: " << s_gen[spin[obtainOneDimPosFromTwoDimPos (i, j-1)]][0];
+            //cout << ", e_x s i j-1: " << s_gen[spin[obtainOneDimPosFromTwoDimPos (i, j+1)]][0] << endl;
+            //cout << " H: " << Hamiltonian << endl;
+        }
     }
     Hamiltonian *= VerPhiBar;
     cout << "Hamiltonian: " << Hamiltonian << endl;
