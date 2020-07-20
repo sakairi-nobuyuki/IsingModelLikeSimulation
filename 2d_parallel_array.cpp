@@ -12,12 +12,16 @@ parallelArray2D::parallelArray2D () {
     n_x   = 10;
     n_y   = 10;
     n_particles = n_x * n_y;
-
+    
     //  allocate spin and spin record book
     s.resize (n_particles);
     s_tmp.resize (n_particles);
     s_record_book.resize (n_particles);
     Sigma.resize (n_particles);
+    VerPhiEySij.resize (n_particles);
+    VerPhiEySneib.resize (n_particles);
+    VerPhiExSij.resize (n_particles);
+    VerPhiExSneib.resize (n_particles);
 
     IonicStrength = 0.01;
     Phi   = 0.05;        //  volume fraction
@@ -43,7 +47,7 @@ parallelArray2D::parallelArray2D () {
     Alpha = 1.0e+09;
     
     VerPhiBar = exp (-Kappa * Dbar);
-    VerPhiTil = exp (-Kappa * Dtil);
+    VerPhiTil = 1.0 - exp (Kappa * Dtil);
     VerPhi    = VerPhiBar * (pow (VerPhiTil, 2) - VerPhiTil);
     
 
@@ -63,7 +67,8 @@ parallelArray2D::parallelArray2D () {
 
     // initialization with random spins
     initRandomSpins ();
-    initSigma ();
+    obtainHamiltonian (s);
+    //initSigma ();
 
 
 }
@@ -87,20 +92,7 @@ void parallelArray2D::printSpinState () {
     }
 }
 
-void parallelArray2D::initSigma () {
-    //cout << "calc sigma" << endl;
-    for (i_y = 0; i_y < n_y; i_y++) {
-        for (i_x = 0; i_x < n_x; i_x++) {
-            Sigma[obtainOneDimPosFromTwoDimPos (i_x, i_y)] 
-                = obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x - 1, i_y)])
-                + obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x + 1, i_y)])
-                + obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x, i_y - 1)])
-                + obtainSigmaFromSpin (s[obtainOneDimPosFromTwoDimPos (i_x, i_y + 1)]);
-        //    cout << "  sigma " << i_x << " " << i_y  << " " << Sigma[obtainOneDimPosFromTwoDimPos (i_x - 1, i_y)] << endl;
-        }
-    }
 
-}
 
 
 void  parallelArray2D::executeSimulatedAnnealing () {
@@ -137,36 +129,6 @@ void  parallelArray2D::executeSimulatedAnnealing () {
     }
 }
 
-void  parallelArray2D::executeGibbsSampling2D () {
-    int i_sample, n_shifted_particles;
-    double Prand, Peval;
-
-    //  initialize spin recordbook
-    cout << "start perturbation" << endl << "initializing spin book" << endl;
-    for (i = 0; i < n_particles; i++) s_record_book[i] = 0;
-
-    //  choose particles
-    for (i = 0; n_shifted_particles = accumulate (s_record_book.begin (), s_record_book.end (), 0) < n_particles; i++) {
-        i_sample = rand () % n_particles;
-        //cout << i_sample << "shall be evaluated first" << endl;
-        if (s_record_book[i_sample] == 0) {
-            
-            Peval = 0.0;
-            Prand = (double) (rand () % 100) * 0.01;
-            cout << i << "th sampling: " << endl;
-            cout << "  " << i_sample << " th spin, c = " << s[i_sample] << endl;
-            cout << "  Pcond = " << Peval << ", Prand = " << Prand << endl;
-            if (Peval < Prand) {
-                s[i_sample] = 1;
-                cout << "up " << Peval << " " << Prand << endl;
-            } else {
-                s[i_sample] = -1;
-                cout << "down " << Peval << " " << Prand  << endl;
-            }
-            s_record_book[i_sample] = 1;
-        }
-    }
-}
 
 void parallelArray2D::obtainJointProbability () {
     H = obtainHamiltonian (s);
@@ -181,15 +143,12 @@ double parallelArray2D::obtainHamiltonian (vector<int>& spin) {
     applyCyclicBoundaryCondition ();
     cout << "finished cyclic Boundary Condition" << endl;
     Hamiltonian = 0.0;
-    for (i = 0; i < n_particles - (n_x + 1); i++) {        
-        //cout << i << endl;
-        Hamiltonian += (obtainSigmaFromSpin (spin[i]) + obtainSigmaFromSpin (spin[i + 1])
-            + obtainSigmaFromSpin (spin[i]) + obtainSigmaFromSpin (spin[i + n_x]))
-            * (i % n_x != 0);
-        
-        cout << "H: " << Hamiltonian << " spin: " << spin[i] << "sigma: " << obtainSigmaFromSpin (spin[i]) << endl;
+    for (i = n_x; i < n_particles - (n_x + 1); i++) {
+        Hamiltonian += (1.0 - VerPhiTil * s_gen[spin[i]][1]) * (2.0 - VerPhiTil * (s_gen[spin[i - 1]][1]) + s_gen[spin[i + 1]][1])
+        + (1.0 - VerPhiTil * s_gen[spin[i]][0]) * (2.0 - VerPhiTil * (s_gen[spin[i - n_x]][0]) + s_gen[spin[i + n_x]][0]);
+        cout << "H: " << Hamiltonian << " s: " << spin[i] << endl;
     }
-    
+    Hamiltonian *= VerPhiBar;
     cout << "Hamiltonian: " << Hamiltonian << endl;
 
     return Hamiltonian;
@@ -215,17 +174,6 @@ void parallelArray2D::applyCyclicBoundaryCondition () {
 }
 
 
-inline double parallelArray2D::obtainCondProb23 (int i) {
-    return 1.0 / (2.0 + exp (Beta * obtainSigmaFromSpin (s[i]) * VerPhiBar * (VerPhi - pow (VerPhiTil, 2))));
-}
-
-inline double parallelArray2D::obtainCondProb1 (int i) {
-    return 1.0 / (1.0 + 2.0 * exp(Beta * obtainSigmaFromSpin (s[i]) * VerPhiBar * (pow (VerPhiTil, 2) - VerPhiTil)));
-}
-
-inline double parallelArray2D::obtainSigmaFromSpin (double s) {
-    return VerPhiBar * VerPhiTil * ((s != 2) * 1.0 + (s == 2) * VerPhiTil);
-}
 
 inline int parallelArray2D::obtainOneDimPosFromTwoDimPos (int i_x, int i_y) {
     return i_y * n_x + i_x;
