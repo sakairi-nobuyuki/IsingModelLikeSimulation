@@ -13,7 +13,7 @@ class parallelArray2D {
         double H, Htmp, Jedl, JvdW, Alpha;    //  Hamiltonian, interaction terms
         double IonicStrength, Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
         double Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
-        double Tsa, TsaMax, TsaMin, dTsa;
+        double Tsa, TsaMax, TsaMin, dTsa, ksa, Psa, PsaRef;
         
         std::vector <int> s, s_record_book, s_tmp;
         std::vector <double> VerPhiEySij, VerPhiEySneib, VerPhiExSij, VerPhiExSneib;
@@ -24,9 +24,9 @@ class parallelArray2D {
         void obtainCyclicBoundaryCondition ();
 
         
-        void applyCyclicBoundaryCondition ();        
+        void applyCyclicBoundaryCondition (vector<int>& spin);        
         double obtainHamiltonian (vector<int>& spin);
-        
+        //double obtainHamiltonian (vector<int>& spin);
     public:
         parallelArray2D ();
         

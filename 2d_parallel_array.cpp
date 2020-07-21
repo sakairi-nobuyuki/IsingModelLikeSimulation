@@ -9,8 +9,8 @@ using namespace std;
 
 parallelArray2D::parallelArray2D () {
     n_spin_state = 3;
-    n_x   = 5;
-    n_y   = 5;
+    n_x   = 10;
+    n_y   = 10;
     n_particles = n_x * n_y;
     
     //  allocate spin and spin record book
@@ -35,7 +35,7 @@ parallelArray2D::parallelArray2D () {
     
     TsaMax = 1.0;
     TsaMin = 0.1;
-    dTsa   = 0.1;
+    dTsa   = 0.001;
 
     //  initialize geometrical parameters
     //Kappa = 1.0 / (0.304 / sqrt (IonicStrength) * 1.0e-09);   
@@ -49,7 +49,9 @@ parallelArray2D::parallelArray2D () {
     VerPhiBar = exp (-Kappa * Dbar);
     VerPhiTil = 1.0 - exp (Kappa * Dtil);
     VerPhi    = VerPhiBar * (pow (VerPhiTil, 2) - VerPhiTil);
-    
+
+    ksa = 1.0e-23;
+    PsaRef = 0.1;    
 
     cout << "initializin geometrical parameters" << endl;
     cout << "  phi:   " << Phi << "(-)" << endl;
@@ -70,7 +72,8 @@ parallelArray2D::parallelArray2D () {
 
     // initialization with random spins
     initRandomSpins ();
-    obtainHamiltonian (s);
+    applyCyclicBoundaryCondition (s);
+    H = obtainHamiltonian (s);
     //initSigma ();
 
 
@@ -114,20 +117,29 @@ void  parallelArray2D::executeSimulatedAnnealing () {
                 s_record_book[i_sample] = 1;
             }
         }
+
+        //  obtain new Hamiltonian
         for (i = 0; i < n_particles; i++) {
             if (s_tmp[i] != s[i]) cout << "i: " << i << " s_tmp: " << s_tmp[i] << ", s: " << s[i] << endl;
         }
+        applyCyclicBoundaryCondition (s_tmp);
         Htmp = obtainHamiltonian (s_tmp);
 
-        cout << H << " " << Htmp << " " << H - Htmp << endl;
-        H = Htmp;
-        for (i = 0; i < n_particles; i++) s[i] = s_tmp[i];
+        //  evaluate which cases shall be applied
+        cout << "H = " << H << " Htmp = " << Htmp << " H - Htmp = " << H - Htmp << endl;
+        
+        Psa = exp ((H - Htmp) / (ksa * Tsa));
+        cout << "Psa = " << Psa << " PsaRef = " << PsaRef << endl;
+        if (Htmp < H) {
+            for (i = 0; i < n_particles; i++) s[i] = s_tmp[i];
+            H = Htmp;
+        } else if (Psa > PsaRef) {
+            for (i = 0; i < n_particles; i++) s[i] = s_tmp[i];
+            H = Htmp;
+        }
+        
 
-        //  calculate Hamiltonian
 
-        //  evaluate newer Hamiltonian
-
-        //  renew T for annealing
 
     }
 }
@@ -143,7 +155,7 @@ double parallelArray2D::obtainHamiltonian (vector<int>& spin) {
     double Hamiltonian;
     //for (i = 0; i < n_paticles; i++) {
     cout << "going to obtain Hamiltonian" << endl;
-    applyCyclicBoundaryCondition ();
+    applyCyclicBoundaryCondition (spin);
     cout << "finished cyclic Boundary Condition" << endl;
     Hamiltonian = 0.0;
     //for (i = n_x; i < n_particles - n_x; i++) {
@@ -175,7 +187,7 @@ double parallelArray2D::obtainHamiltonian (vector<int>& spin) {
     return Hamiltonian;
 }
 
-void parallelArray2D::applyCyclicBoundaryCondition () {
+void parallelArray2D::applyCyclicBoundaryCondition (vector<int>& spin) {
     cout << "cyclic boundary condition" << endl;
     for (i_x = 0; i_x < n_x - 1; i_x++)  {
         //cout << i_x << " " << obtainOneDimPosFromTwoDimPos (i_x, n_x - 2) << " " << n_x << " " << n_y << endl;
