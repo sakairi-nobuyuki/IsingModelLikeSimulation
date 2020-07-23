@@ -7,7 +7,7 @@ class parallelArray2D {
         int n_x, n_y, n_particles, n_spin_state;
         int s_gen[3][2] = {{1, 0}, {0, 1}, {1, 1}}, e_x[2] = {1, 0}, e_y[2] = {0, 1};    //  generator of spin with 2 degree of freedom.
         int n_particles_perturb;
-        int i_x, i_y, i, j, k, l, i_sample;
+        int i_x, i_y, i, j, k, l, i_sample, i_trial, n_trial;
         double D, Dbar, Dtil, Phi, Delta, L, Cexcl;
         double VerPhiTil, VerPhiBar, VerPhi;
         double H, Htmp, Jedl, JvdW, Alpha;    //  Hamiltonian, interaction terms
@@ -24,12 +24,14 @@ class parallelArray2D {
 
         int obtainOneDimPosFromTwoDimPos (int i_x, int i_y); 
         void initRandomSpins ();
+        void initKsa ();
         void obtainCyclicBoundaryCondition ();
 
         
         void applyCyclicBoundaryCondition (vector<int>& spin);        
         double obtainHamiltonian (vector<int>& spin);
         //double obtainHamiltonian (vector<int>& spin);
+        void renewHamiltonianAndSpinState ();
     public:
         parallelArray2D ();
         
