@@ -1,16 +1,22 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstdlib>
 #include <math.h>
+#include <string>
 #include <numeric>
+
 #include "2d_parallel_array.h"
 
 using namespace std;
 
 parallelArray2D::parallelArray2D () {
-    n_spin_state = 3;
-    n_x   = 100;
-    n_y   = 100;
+    loadConfigFile ();
+    cout << "load config file" << endl;
+    //n_spin_state = 3;
+    //n_x   = 10;
+    //n_y   = 10;
+
     n_particles = n_x * n_y;
     
     //  allocate spin and spin record book
@@ -23,21 +29,20 @@ parallelArray2D::parallelArray2D () {
     VerPhiExSij.resize (n_particles);
     VerPhiExSneib.resize (n_particles);
 
-    IonicStrength = 0.01;
-    Phi   = 0.05;        //  volume fraction
-    Delta = 1.0e-09;     //  width of the particle
-    L     = 500.0e-09;   //  length of  th particle
-    Cexcl = 0.8;
+    //IonicStrength = 0.01;
+    //Phi   = 0.05;        //  volume fraction
+    //Delta = 1.0e-09;     //  width of the particle
+    //L     = 500.0e-09;   //  length of  th particle
+    //Cexcl = 0.8;
 
-    kB = 1.0;
-    T  = 100;
+    //kB = 1.0;
+    //T  = 100;
     Beta = 1.0 / (kB * T);
     
+    //TsaMax = 1.0;
+    //TsaMin = 0.1;
+    //dTsa   = 0.001;
     // simulated annealing setting
-    TsaMax = 1.0;
-    TsaMin = 0.1;
-    dTsa   = 0.0001;
-    n_trial = n_x * n_y / 2;
 
     //  initialize geometrical parameters
     //Kappa = 1.0 / (0.304 / sqrt (IonicStrength) * 1.0e-09);   
@@ -45,15 +50,15 @@ parallelArray2D::parallelArray2D () {
     //Dbar = Delta * (1.0 / Phi - 1.0);    ///  1 dimensional case
     Dbar = sqrt (2.0 * L * Delta / Phi) - 0.5 * Delta;
     Dtil = 0.5 * (L - Delta) * Delta / L * Cexcl;
-    CvdW  = 0.0001;
-    Alpha = 1.0e+09;
+    //CvdW  = 0.0001;
+    //Alpha = 1.0e+09;
     
     VerPhiBar = exp (-Kappa * Dbar);
     VerPhiTil = 1.0 - exp (Kappa * Dtil);
     VerPhi    = VerPhiBar * (pow (VerPhiTil, 2) - VerPhiTil);
 
-    ksa = 1.0e-23;
-    PsaRef = 0.1;    
+    //ksa = 1.0e-23;
+    //PsaRef = 0.1;    
 
     cout << "initializin geometrical parameters" << endl;
     cout << "  phi:   " << Phi << "(-)" << endl;
@@ -79,7 +84,7 @@ parallelArray2D::parallelArray2D () {
     initKsa ();
     //initSigma ();
 
-
+//    loadConfigFile ();
 }
 
 
@@ -127,12 +132,12 @@ void  parallelArray2D::executeSimulatedAnnealing () {
                 }
             }
 
-            //  obtain new Hamiltonian
-            //for (i = 0; i < n_particles; i++) {
-            //    if (s_tmp[i] != s[i]) cout << "i: " << i << " s_tmp: " << s_tmp[i] << ", s: " << s[i] << endl;
-            //}
-            applyCyclicBoundaryCondition (s_tmp);
-            Htmp = obtainHamiltonian (s_tmp);
+        //  obtain new Hamiltonian
+        //for (i = 0; i < n_particles; i++) {
+        //    if (s_tmp[i] != s[i]) cout << "i: " << i << " s_tmp: " << s_tmp[i] << ", s: " << s[i] << endl;
+        //}
+        applyCyclicBoundaryCondition (s_tmp);
+        Htmp = obtainHamiltonian (s_tmp);
 
             //  evaluate which cases shall be applied
             cout << "  H = " << H << " Htmp = " << Htmp << " H - Htmp = " << H - Htmp << endl;
@@ -225,4 +230,74 @@ void parallelArray2D::applyCyclicBoundaryCondition (vector<int>& spin) {
 inline int parallelArray2D::obtainOneDimPosFromTwoDimPos (int i_x, int i_y) {
     return i_y * n_x + i_x;
 
+}
+
+
+void parallelArray2D::loadConfigFile () {
+    fstream filestream ("conf_2d.dat");
+    string buff, token, comment_reduced_buff, separated_buff;
+    
+    int i_token, i_lines;
+
+    //if (!filestream.is_open ())   return 0;
+
+    for (i_lines = 0; !filestream.eof (); i_lines++) {
+        getline (filestream, buff);
+        if (buff[0] == '#')  continue;
+        
+        istringstream comment_reduced_stream (buff);
+        getline (comment_reduced_stream, comment_reduced_buff, '#');
+        //cout << buff << endl;
+        //cout << comment_reduced_buff << endl;
+
+        istringstream separated_stream (comment_reduced_buff);
+        vector<string> separated_string;    
+        for (i_token = 0; getline (separated_stream, separated_buff, ':'); i_token++) {
+            separated_string.push_back (separated_buff);
+        }
+
+        if (separated_string[0] == "n_x") {
+            //cout << separated_string[0] << "=" << separated_string[1] << endl;
+            //cout << typeid (separated_string[1]).name () << endl;
+            //n_x = static_cast<int> (separated_buff[1]);
+            //n_x = std::atoi (separated_string[1].c_str);
+            n_x = stoi (separated_string[1]);
+            //cout << n_x << " cast " << std::stoi ("20") << endl;
+        }
+        if (separated_string[0] == "n_y") {
+            n_y = stoi (separated_string[1]);
+            //cout << n_y << endl;
+        }
+        if (separated_string[0] == "n_spin_state") {
+            n_spin_state = stoi (separated_string[1]);
+            //cout << n_spin_state << endl;
+        }
+        if (separated_string[0] == "IonicStrength") {
+            IonicStrength = stod (separated_string[1]);
+            //cout << separated_string[1] << endl;
+            //cout << IonicStrength << endl;
+        }
+        if (separated_string[0] == "Phi")   Phi   = stod (separated_string[1]);
+        if (separated_string[0] == "Delta") {
+            Delta = stod (separated_string[1]);
+            //cout << Delta << endl;
+        }
+        if (separated_string[0] == "L")     L     = stod (separated_string[1]);
+        if (separated_string[0] == "Cexcl") Cexcl = stod (separated_string[1]);
+        if (separated_string[0] == "kB")    kB    = stod (separated_string[1]);
+        if (separated_string[0] == "T")     T    = stod (separated_string[1]);
+        if (separated_string[0] == "TsaMax")     TsaMax    = stod (separated_string[1]);
+        if (separated_string[0] == "TsaMin")     TsaMin    = stod (separated_string[1]);
+        if (separated_string[0] == "dTsa")       dTsa      = stod (separated_string[1]);
+        if (separated_string[0] == "ksa")        ksa       = stod (separated_string[1]);
+        if (separated_string[0] == "PsaRef")     PsaRef    = stod (separated_string[1]);
+        if (separated_string[0] == "CvdW")       CvdW      = stod (separated_string[1]);
+        if (separated_string[0] == "Alpha") {
+            Alpha     = stod (separated_string[1]);
+            //cout << Alpha << endl;
+        }   
+        
+    }
+    
+    
 }

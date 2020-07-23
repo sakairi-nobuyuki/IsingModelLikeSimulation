@@ -19,6 +19,9 @@ class parallelArray2D {
         std::vector <double> VerPhiEySij, VerPhiEySneib, VerPhiExSij, VerPhiExSneib;
         std::vector <double> Sigma;
         //std::vector <vector <int>> s, s_record_book;
+
+        void loadConfigFile ();
+
         int obtainOneDimPosFromTwoDimPos (int i_x, int i_y); 
         void initRandomSpins ();
         void initKsa ();

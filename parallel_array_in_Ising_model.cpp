@@ -10,8 +10,7 @@ int main () {
     
     //  perturvation against H with Gibbs sampling
     Domain1.executeSimulatedAnnealing ();
-    //Domain1.obtainJointProbability ();
-    //Domain1.printSpinState ();
+    
 
 
     return 0;
