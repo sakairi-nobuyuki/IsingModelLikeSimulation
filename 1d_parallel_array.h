@@ -6,24 +6,25 @@
 using namespace std;
 class parallelArray1D {
     protected:
-        int n_status, n_particles;
+        int n_status, n_particles, n_state_of_c;
         int i, j, k, l;
+        int c_th;
         double Jedl, JvdW, J;    //  Hamiltonian, interaction terms
+        double Phi, Delta, L, D, Dex, Cex, IonicStrength;   //  Dex: distance concerning to exclusive volume, Cex: coefficient concerning to exclusive voume
+        double Alpha;   //  Ratio of EDL force and van der Waals force
         double H, Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
-        double Z, Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
+        double ProtoProb;
+        double Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
         
-        vector<int> s, s_record_book;
-        vector<string> s_all_state_in_str;
-        
-        //list<string> all_spin_state;
+        vector<int> s, s_record_book, c, c_record_book;
 
-        void initRandomSpins ();
+        void initRandomOrderParameter ();
+        void printSpinAndOrderParameterState ();
         void obtainCyclicBoundaryCondition ();
         
         double obtainD1Distance (int i, int j);
 
-
-        void setAllSpinState (list<string>& AllSpinState);
+        int obtainSpinFromOrderParameter ();
 
         double obtainEDLInteraction ();
         double obtainVanDerWaalsInteraction ();
@@ -33,14 +34,16 @@ class parallelArray1D {
         double obtainD2DistanceDiscrete1D (int x1, int x2);    
         double obtainEDLInteractionDiscrete1D (int x1, int x2);
         double obtainVanDerWaalsInteractionDiscrete1D (int x1, int x2);
-        double obtainDistributionFunction ();
-        double obtainProbability (double H);
+  
+        double obtainInteractionPotential (int s_1, int s_2);
+        double obtainConditionalProb1D (int c_subject);
+        void transformOrderParameterToSpinState ();
+        int obtainSpinFromOrderParameter (int c);
+        
     public:
         parallelArray1D ();
-        
-        //double obtainHamiltonian (int *s, int n_particles);
-        double obtainHamiltonian (vector<int>& s);
-        void printHamiltonianAndSpinStatus ();
+
+        void executeGibbsSampling ();              
         void perturbSpinDistributionWithGibbsSampling ();
 
 

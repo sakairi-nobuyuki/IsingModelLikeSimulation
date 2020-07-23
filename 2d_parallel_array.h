@@ -4,36 +4,38 @@
 using namespace std;
 class parallelArray2D {
     protected:
-        int LL;
-        int i, j, k, l;
-        double H, Jedl, JvdW;    //  Hamiltonian, interaction terms
-        double Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
-        double Z, Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
+        int n_x, n_y, n_particles, n_spin_state;
+        int s_gen[3][2] = {{1, 0}, {0, 1}, {1, 1}}, e_x[2] = {1, 0}, e_y[2] = {0, 1};    //  generator of spin with 2 degree of freedom.
+        int n_particles_perturb;
+        int i_x, i_y, i, j, k, l, i_sample, i_trial, n_trial;
+        double D, Dbar, Dtil, Phi, Delta, L, Cexcl;
+        double VerPhiTil, VerPhiBar, VerPhi;
+        double H, Htmp, Jedl, JvdW, Alpha;    //  Hamiltonian, interaction terms
+        double IonicStrength, Kappa, CvdW, d;   //  width of EDL, coeffient of van der Waals force
+        double Beta, kB, T;      //  Beta = kB T, kB: Boltzmann factor, T: temperature
+        double Tsa, TsaMax, TsaMin, dTsa, ksa, Psa, PsaRef;
         
-        std::vector <vector <int>> s, s_record_book;
+        std::vector <int> s, s_record_book, s_tmp;
+        std::vector <double> VerPhiEySij, VerPhiEySneib, VerPhiExSij, VerPhiExSneib;
+        std::vector <double> Sigma;
+        //std::vector <vector <int>> s, s_record_book;
 
+        void loadConfigFile ();
+
+        int obtainOneDimPosFromTwoDimPos (int i_x, int i_y); 
         void initRandomSpins ();
+        void initKsa ();
         void obtainCyclicBoundaryCondition ();
-        void perturbSpinDistributionWithGibbsSampling ();
-        double obtainD1Distance (int i, int j);
 
-        double obtainEDLInteraction ();
-        double obtainVanDerWaalsInteraction ();
-
-
-        double obtainD1DistanceDiscrete1D (int x1, int x2);    
-        double obtainD1DistanceDiscrete2D (int x1, int y1, int x2, int y2);
-        double obtainEDLInteractionDiscrete2D (int x1, int y1, int x2, int y2);
-        double obtainVanDerWaalsInteractionDiscrete2D (int x1, int y1, int x2, int y2);
-        double obtainD2DistanceDiscrete2D (int x1, int y1, int x2, int y2);
-        double obtainDistributionFunction ();
-        double obtainProbability (double H);
+        
+        void applyCyclicBoundaryCondition (vector<int>& spin);        
+        double obtainHamiltonian (vector<int>& spin);
+        //double obtainHamiltonian (vector<int>& spin);
+        void renewHamiltonianAndSpinState ();
     public:
         parallelArray2D ();
         
-        void obtainHamiltonian ();
-        void printHamiltonianAndSpinStatus ();
-
-
-
+        void executeSimulatedAnnealing ();
+        void printSpinState ();
+        void obtainJointProbability ();
 };

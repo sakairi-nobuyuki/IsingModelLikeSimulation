@@ -19,94 +19,143 @@
 using namespace std;
 
 parallelArray1D::parallelArray1D () {
-    n_status = 2;
-    n_particles = 8;
-    Kappa = 1.0;
+    n_status     = 2;
+    n_particles  = 100;
+    n_state_of_c = 2;
+    
+    IonicStrength = 0.01;
+    Phi   = 0.1; 
+    Delta = 1.0e-09;
+    L     = 500.0e-09;
     CvdW  = 0.0001;
+    Cex = 4.0;
+
+    c_th  = 4;
 
     kB = 1.0;
-    T  = 100;
+    T  = 300;
     Beta = 1.0 / (kB * T);
-    Z  = obtainDistributionFunction ();
+
+    //  initialize geometrical parameters
+    Kappa = 0.304 / sqrt (IonicStrength) * 1.0e-09;
+    D   = Delta * (1.0 / Phi - 1.0);
+    Dex = 0.5 * (L - Delta) * Delta / L * Cex;
+    Alpha = 1.0e+09;
+
+    J = Alpha * Kappa * exp (-Kappa * D);
+
+    cout << "initializin geometrical parameters" << endl;
+    cout << "  phi:   " << Phi << "(-)" << endl;
+    cout << "  kappa: " << Kappa * 1.0e+09 << "(m-9)" << endl;
+    cout << "  delta: " << Delta * 1.0e+09 << "(m-9)" << endl;
+    cout << "  l:     " << L * 1.0e+09 << "(m-9)" << endl;
+    cout << "  D:     " << D * 1.0e+09 << "(m-9)" << endl;
+    cout << "  Dex:   " << Dex * 1.0e+09 << "(m-9)" << endl;
+    cout << "  IonicStrength: " << IonicStrength << "(mol/L)" << endl;
+    cout << "  Alpha:   " << Alpha << "(-)" << endl << endl;
 
     //  allocate spin and spin record book
     s.resize (n_particles);
     s_record_book.resize (n_particles);
-    
+    c.resize (n_particles);
+    c_record_book.resize (n_particles);
 
     //  initializing random spin
-    initRandomSpins (); 
+    initRandomOrderParameter (); 
+
+    //  transformation order parameter to spin
+    transformOrderParameterToSpinState ();
+
+    // confirmation
+    cout << "Finished initialize order parameter and spin" << endl;
+    printSpinAndOrderParameterState ();
+    cout << endl;
 
 }
 
-
-double parallelArray1D::obtainDistributionFunction () {
-    int i, j, k, spin_status_in_bin, spin_target[n_particles], spin_test;
-    const char* spin_state_char;
-    string spin_state, spin_state_1_digit;
-    list<string> all_spin_state;
-    list<string>::iterator all_spin_state_itr;
-    vector<int> spin_subject (n_particles);
-    double Z, H;
-
-    Z = 0.0;
-    H = 0.0;
-    
-    setAllSpinState (all_spin_state);
-    
-    //  Z = sum exp (-Beta H (s))
-    //cout << endl << endl << "all spinstate" << endl;
-    for (all_spin_state_itr = all_spin_state.begin (); all_spin_state_itr != all_spin_state.end (); all_spin_state_itr++) {
-        spin_state = *all_spin_state_itr;    //  transform list of string to string
-        //cout << "spin state: " << spin_state << ", size of spin state = " << spin_state.size () << endl;    
-        for (i = 0; i < spin_state.size (); i++) {
-            spin_state_1_digit = spin_state[i];
-            //cout << spin_state_1_digit << " " << spin_state[i] << endl;
-            spin_test = stoi (spin_state_1_digit);
-            if (spin_test == 0) spin_test = -1;
-            //cout << spin_test << endl;
-            spin_subject[i] = spin_test;
-            cout << spin_subject[i];
-        }
-        cout << endl;
-        
-        H = obtainHamiltonian (spin_subject);
-        Z += exp (-Beta * H);
-
-        cout << "H = " << H << endl;
-        
-    }
-    
-    cout << "Z = " << Z << endl;
-    
-    return Z;
-}
-
-
-void parallelArray1D::setAllSpinState (list<string>& AllSpinState) {
-    int i;
-
-    for (i = 0; i < pow (n_status, n_particles); i++) {
-        string spin_status_in_str;
-        stringstream bin_in_string;    
-
-        bin_in_string << bitset <sizeof (i) * __CHAR_BIT__> (i);
-        spin_status_in_str = bin_in_string.str ().substr (sizeof (i) * __CHAR_BIT__ - n_particles, n_particles);
-        cout << i << " " << spin_status_in_str << endl;
-        AllSpinState.push_back (spin_status_in_str);
-    }
-    cout << "all spin set finished" << endl;
-}
-
-
-void parallelArray1D::initRandomSpins () {
+void parallelArray1D::initRandomOrderParameter () {
     for (i = 0; i <n_particles; i++) {
-        s[i] = rand () % n_status;
-        if (s[i] == 0)  s[i] = -1;
-        //cout << s[i] << " ";
+        c[i] = rand () % n_state_of_c;
+        //cout << c[i] << " ";
     }
     //cout << endl;
 }
+
+
+void parallelArray1D::printSpinAndOrderParameterState () {
+    cout << "Order Parameter" << endl << "  ";
+    for (i = 0; i < n_particles; i++) cout << c[i];
+    cout << endl;
+
+    cout << "Spin" << endl << "  ";
+    for (i = 0; i < n_particles; i++) cout << s[i];
+    cout << endl;
+
+}
+
+void parallelArray1D::executeGibbsSampling () {
+    int i_sample, n_shifted_particles;
+    double Prand, Peval;
+
+    //  initialize spin recordbook
+    cout << "start perturbation" << endl << "initializing spin book" << endl;
+    for (i = 0; i <n_particles; i++) c_record_book[i] = 0;
+
+    //  choose particles
+    for (i = 0; n_shifted_particles = accumulate (c_record_book.begin (), c_record_book.end (), 0) < n_particles; i++) {
+        i_sample = rand () % n_particles;
+        //cout << i_sample << "shall be evaluated first" << endl;
+        if (c_record_book[i_sample] == 0) {
+            
+            Peval = obtainConditionalProb1D (c[i_sample]);
+            Prand = (double) (rand () % 100) * 0.01;
+            cout << i << "th sampling: " << endl;
+            cout << "  " << i_sample << " th spin, c = " << c[i_sample] << endl;
+            cout << "  Pcond = " << Peval << ", Prand = " << Prand << endl;
+            if (Peval < Prand) {
+                s[i_sample] = 1;
+                cout << "up " << Peval << " " << Prand << endl;
+            } else {
+                s[i_sample] = -1;
+                cout << "down " << Peval << " " << Prand  << endl;
+            }
+            c_record_book[i_sample] = 1;
+        } 
+
+
+
+    }
+}
+
+inline double parallelArray1D::obtainConditionalProb1D (int c_subject) {
+
+    ProtoProb = 0.0;
+
+    for (j = 0; j < n_state_of_c; j++) {
+        //ProtoProb += -2.0 * Beta * J * ((obtainSpinFromOrderParameter (j) - obtainSpinFromOrderParameter (c_subject))); 
+        ProtoProb += exp (-2.0 * Beta * J * ((obtainSpinFromOrderParameter (j) - obtainSpinFromOrderParameter (c_subject)))); 
+        cout << "  j = " << j << ", cj = " << obtainSpinFromOrderParameter (j) << ", cJ = " << obtainSpinFromOrderParameter (c_subject);
+        cout << ", proto p = " << ProtoProb;
+        cout << ", J = " << J << ", Beta = " << Beta << endl;
+    }
+
+    cout << "Conditional Probability: " << 1.0 / (1.0 + ProtoProb) << endl;
+    return 1.0 / (1.0 + ProtoProb);
+}
+
+inline double parallelArray1D::obtainInteractionPotential (int s_1, int s_2) {
+    return -1.0 / D + Alpha * exp (-Kappa * (D - (s_1 + s_2) * Dex));
+}
+
+void parallelArray1D::transformOrderParameterToSpinState () {
+    for (i = 0; i < n_particles; i++)   s[i] = ((c[i] - c_th) > 0);
+}
+
+inline int parallelArray1D::obtainSpinFromOrderParameter (int c) {
+    return (c - c_th) > 0;
+}
+
+
 
 void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
     int i_sample, i_one_hot, j_one_hot, n_shifted_particles;
@@ -121,7 +170,8 @@ void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
         i_sample = rand () % n_particles;
         cout << i_sample << "shall be evaluated first" << endl;
         if (s_record_book[i_sample] == 0) {
-            Peval = exp (-Beta * obtainHamiltonian (s)) / Z;
+            
+            Peval = 0.0;
             Prand = (double) (rand () % 100) * 0.01;
             if (Peval < Prand) {
                 s[i_sample] = 1;
@@ -140,49 +190,11 @@ void parallelArray1D::perturbSpinDistributionWithGibbsSampling () {
 
 }
 
-double parallelArray1D::obtainHamiltonian (vector<int>& s) {
-    int i;
-    double H;
 
-    // boundary condition
-    //cout << "set cyclic boundary condition with spin state ";
-    //for (i = 0; i < n_particles; i++) cout << s[i];
-    //cout << endl;
-    //cout << "finished to set cyclic boundary condition" << endl;
-
-    //  calculating Hamiltonian
-    //cout << "start to calculate Hamiltonian" << endl;
-    H = 0.0;
-    //cout << "initialize Hamiltonian" << endl;
-    for (i = 0 ; i < s.size (); i++) {
-        for (k = 0; k < i; k++) {
-            J = obtainEDLInteractionDiscrete1D (i, k) * s[i] * s[k]
-                - obtainVanDerWaalsInteractionDiscrete1D (i, k);
-            H += J;
-            cout << "i = " << i << ", j = " << k << ", s_i, s_k = " << s[i] << ", " << s[k] << ", J = " << J << ", p = " << exp (-Beta * J) << ", Z = " << Z << endl;
-        }
-    }
-    
-    
-    return H;
-}
-
-double parallelArray1D::obtainProbability (double H) {
-    return exp (-1.0 * Beta * H) / Z;
-}
 
 void parallelArray1D::obtainCyclicBoundaryCondition () {
     //  cyclic boundary condition 
     s[0] = s[n_particles - 2];
-}
-
-
-void parallelArray1D::printHamiltonianAndSpinStatus () {
-    //cout << "Hamiltonian: " << H << endl;
-    cout << "Spin status:" << endl;
-    for (i = 0; i <n_particles; i++) cout << s[i] << " ";
-    cout << endl;
-    cout << "End spin status:" << endl;
 }
 
 
