@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <cstdlib>
 #include <math.h>
 #include <string>
@@ -76,6 +77,9 @@ parallelArray2D::parallelArray2D () {
     cout << "  s_u1:    " << "[" << s_gen[0][0] << ", " << s_gen[0][1] << "]" << endl;
     cout << "  s_u2:    " << "[" << s_gen[1][0] << ", " << s_gen[1][1] << "]" << endl;
     cout << "  s_u3:    " << "[" << s_gen[2][0] << ", " << s_gen[2][1] << "]" << endl;
+    cout << "initializing output file" << endl;
+    cout << "  output file:      " << output_file_name << endl;
+    cout << "  output frequency: " << output_freq << endl;
 
     // initialization with random spins
     initRandomSpins ();
@@ -85,6 +89,7 @@ parallelArray2D::parallelArray2D () {
     //initSigma ();
 
 //    loadConfigFile ();
+    initOutputFile ();
 }
 
 
@@ -115,6 +120,8 @@ void parallelArray2D::printSpinState () {
 
 void  parallelArray2D::executeSimulatedAnnealing () {
     int n_shifted_particles;
+
+    n_tsa = 0;
     for (Tsa = TsaMax; Tsa > TsaMin; Tsa -= dTsa) {
         for (i_trial = 0; i_trial < n_trial; i_trial++) {
             //  obtain number of particles to make perturbation
@@ -156,6 +163,9 @@ void  parallelArray2D::executeSimulatedAnnealing () {
                 break;
             }
         }
+        writeOutputFile ();
+        n_tsa++;
+        if (n_tsa % output_freq == 0) dumpSpinState (n_tsa);
     }
 }
 
@@ -233,13 +243,13 @@ inline int parallelArray2D::obtainOneDimPosFromTwoDimPos (int i_x, int i_y) {
 }
 
 
-void parallelArray2D::loadConfigFile () {
+int parallelArray2D::loadConfigFile () {
     fstream filestream ("conf_2d.dat");
     string buff, token, comment_reduced_buff, separated_buff;
     
     int i_token, i_lines;
 
-    //if (!filestream.is_open ())   return 0;
+    if (!filestream.is_open ())   return 400;
 
     for (i_lines = 0; !filestream.eof (); i_lines++) {
         getline (filestream, buff);
@@ -296,8 +306,78 @@ void parallelArray2D::loadConfigFile () {
             Alpha     = stod (separated_string[1]);
             //cout << Alpha << endl;
         }   
-        
+        if (separated_string[0] == "output_file_name") {
+            output_file_name  = separated_string[1];
+            //cout << Alpha << endl;
+        }   
+        if (separated_string[0] == "output_freq") {
+            output_freq  = stoi (separated_string[1]);
+            //cout << Alpha << endl;
+        }   
     }
+    filestream.close ();
+    return 0;   
+}
+
+
+int parallelArray2D::initOutputFile () {
+    cout << "preparing output file" << endl;
+    cout << "  output file name: " << output_file_name << endl;
+
+    ofstream fs_out;
+    fs_out.open (output_file_name, ios::out);
+    if (fs_out.fail ()) {
+        cout << "  cannot open " << output_file_name << endl;
+        return 401;
+    }
+
+    fs_out << "Tsa, H, Psa, n_particles_perturb" << endl;
+    fs_out.close ();
+
+    return 0;
+}
+
+
+int parallelArray2D::writeOutputFile () {
+    ofstream fs_out;
+
+    fs_out.open (output_file_name, ios::app);
+    if (fs_out.fail ()) {
+        cout << "  cannot open " << output_file_name << endl;
+        return 401;
+    }
+
+    fs_out << Tsa << ", " <<  H << ", " << Psa << ", " << n_particles_perturb << endl;
+    fs_out.close ();
+
+    return 0;
+}
+
+int parallelArray2D::dumpSpinState (int n) {
+    ofstream fs_out;
+    string output_file_name_spin;
+    ostringstream n_fill_digit;
+
     
-    
+    n_fill_digit << setw (10) << setfill ('0') << to_string (n);
+    string n_out (n_fill_digit.str ());
+
+    output_file_name_spin = "out.spin." + n_out;
+    cout << "dump spin state: " << output_file_name_spin << endl;
+
+    fs_out.open (output_file_name_spin, ios::out);
+    if (fs_out.fail ()) {
+        cout << "  cannot open " << output_file_name << endl;
+        return 401;
+    }   
+
+    for (i_x = 0; i_x < n_x; i_x++) {
+        for (i_y = 0; i_y < n_y; i_y++) {
+            fs_out << s[obtainOneDimPosFromTwoDimPos (i_x, i_y)];
+        }
+        fs_out << endl;
+    }
+    fs_out.close ();
+
+    return 0;
 }
