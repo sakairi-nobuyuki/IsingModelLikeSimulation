@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <random>
 
 using namespace std;
 class parallelArray2D {
@@ -20,6 +21,11 @@ class parallelArray2D {
         std::vector <int> s, s_record_book, s_tmp;
         std::vector <double> VerPhiEySij, VerPhiEySneib, VerPhiExSij, VerPhiExSneib;
         std::vector <double> Sigma;
+
+        std::random_device prd;
+        mt19937_64 mt_64;
+        uniform_int_distribution<int> prd_spin_state, prd_n_particles;
+
         //std::vector <vector <int>> s, s_record_book;
 
         int loadConfigFile ();
@@ -27,6 +33,7 @@ class parallelArray2D {
         int obtainOneDimPosFromTwoDimPos (int i_x, int i_y); 
         void initRandomSpins ();
         void initKsa ();
+        void initPseudoRandomNumber ();
         void obtainCyclicBoundaryCondition ();
 
         
