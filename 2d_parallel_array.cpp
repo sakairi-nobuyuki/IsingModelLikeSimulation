@@ -158,7 +158,8 @@ void  parallelArray2D::executeSimulatedAnnealing () {
             for (i = 0; i < n_particles; i++) s_tmp[i] = s[i];
             for (i = 0; i < n_particles; i++) s_record_book[i] = 0;
             for (i = 0; n_shifted_particles = accumulate (s_record_book.begin (), s_record_book.end (), 0) < n_particles_perturb; i++) {
-                //i_sample = rand () % n_particles;
+                //
+                i_sample = rand () % n_particles;
                 i_sample = prd_n_particles (mt_64);
                 //cout << i_sample << endl;
                 if (s_record_book[i_sample] == 0) {
