@@ -23,8 +23,8 @@ class SheetLikeIsingModelConfig:
         self.parameter['n_trial']  = config_2d.n_trial
         self.parameter['CvdW']     = config_2d.CvdW
         self.parameter['Alpha']    = config_2d.Alpha
-        self.parameter['output_file_name'] = config_2d.output_file_name
-        self.parameter['output_freq']      = config_2d.output_freq
+        #self.parameter['output_file_name'] = config_2d.output_file_name
+        #self.parameter['output_freq']      = config_2d.output_freq
 
         
         self.parameter_combinations = list (itertools.product (self.parameter['n_x'], self.parameter['n_y'], \
@@ -33,7 +33,7 @@ class SheetLikeIsingModelConfig:
             self.parameter['T'], self.parameter['TsaMax'], self.parameter['TsaMin'], self.parameter['dTsa'], \
             self.parameter['ksa'], self.parameter['PsaRef'], self.parameter['n_trial'], self.parameter['CvdW'], self.parameter['Alpha']))
 
-        pprint.pprint (self.parameter_combinations)
+        #pprint.pprint (self.parameter_combinations)
 
         self.parameter_dict_list = []
         for item_list in self.parameter_combinations:
@@ -42,4 +42,4 @@ class SheetLikeIsingModelConfig:
                 if 'output' in item_key:  continue
                 parameter_dict[item_key] = item_list[i_item]
             self.parameter_dict_list.append (parameter_dict)
-        pprint.pprint (self.parameter_dict_list)
+        #pprint.pprint (self.parameter_dict_list)

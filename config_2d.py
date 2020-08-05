@@ -43,7 +43,11 @@ CvdW     = [0.0001]
 Alpha    = [1.0e+09]
 
 ###  Output setting
+# output dir name base
+output_dir_name = 'output'   
+# output sub dir name base
+output_sub_dir_name = ''   
 # output file name base
-output_file_name = ['out']   
+output_file_name = 'out'   
 # output frequency in every annealing stage
-output_freq      = [100]              
+output_freq      = 100              
