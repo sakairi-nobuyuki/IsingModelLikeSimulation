@@ -1,9 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <cstdlib>
 #include <math.h>
 #include <string>
+#include <random>
 #include <numeric>
 
 #include "2d_parallel_array.h"
@@ -12,6 +14,12 @@ using namespace std;
 
 parallelArray2D::parallelArray2D () {
     loadConfigFile ();
+    initPseudoRandomNumber ();
+    cout << " n spin state: " << n_spin_state << endl;
+    for (i = 0; i < 10; i++) 
+        cout << prd_spin_state (mt_64) << " ";
+    cout << endl;
+
     cout << "load config file" << endl;
     //n_spin_state = 3;
     //n_x   = 10;
@@ -76,20 +84,40 @@ parallelArray2D::parallelArray2D () {
     cout << "  s_u1:    " << "[" << s_gen[0][0] << ", " << s_gen[0][1] << "]" << endl;
     cout << "  s_u2:    " << "[" << s_gen[1][0] << ", " << s_gen[1][1] << "]" << endl;
     cout << "  s_u3:    " << "[" << s_gen[2][0] << ", " << s_gen[2][1] << "]" << endl;
+    cout << "initializing output file" << endl;
+    cout << "  output file:      " << output_file_name << endl;
+    cout << "  output frequency: " << output_freq << endl;
 
     // initialization with random spins
     initRandomSpins ();
+    printSpinState ();
     applyCyclicBoundaryCondition (s);
     H = obtainHamiltonian (s);
     initKsa ();
     //initSigma ();
 
 //    loadConfigFile ();
+    initOutputFile ();
 }
 
 
+void parallelArray2D::initPseudoRandomNumber () {
+    //random_device prd;
+    //mt19937_64 mt_64 (prd ());
+    //uniform_int_distribution<int> prd_spin_state.resize (0, n_spin_state - 1);
+    mt_64.seed (prd ());
+    uniform_int_distribution<int> prd_spin_state (0, n_spin_state - 1);
+    cout << " n spin state: " << n_spin_state << endl;
+    for (i = 0; i < 10; i++) 
+        cout << prd_spin_state (mt_64) << " ";
+    cout << endl;
+}
+
 void parallelArray2D::initRandomSpins () {
-    for (i = 0; i < n_particles; i++)  s[i] = rand () % n_spin_state;
+    mt_64.seed (prd ());
+    uniform_int_distribution<int> prd_spin_state (0, n_spin_state - 1);
+    for (i = 0; i < n_particles; i++)  s[i] = prd_spin_state (mt_64);
+    //for (i = 0; i < n_particles; i++)  s[i] = rand () % n_spin_state;
 }
 
 void parallelArray2D::initKsa () {
@@ -115,6 +143,11 @@ void parallelArray2D::printSpinState () {
 
 void  parallelArray2D::executeSimulatedAnnealing () {
     int n_shifted_particles;
+
+    n_tsa = 0;
+    mt_64.seed (prd ());
+    uniform_int_distribution<int> prd_spin_state (0, n_spin_state - 1), prd_n_particles (0, n_particles - 1);
+
     for (Tsa = TsaMax; Tsa > TsaMin; Tsa -= dTsa) {
         for (i_trial = 0; i_trial < n_trial; i_trial++) {
             //  obtain number of particles to make perturbation
@@ -125,19 +158,22 @@ void  parallelArray2D::executeSimulatedAnnealing () {
             for (i = 0; i < n_particles; i++) s_tmp[i] = s[i];
             for (i = 0; i < n_particles; i++) s_record_book[i] = 0;
             for (i = 0; n_shifted_particles = accumulate (s_record_book.begin (), s_record_book.end (), 0) < n_particles_perturb; i++) {
-                i_sample = rand () % n_particles;
+                //i_sample = rand () % n_particles;
+                i_sample = prd_n_particles (mt_64);
+                //cout << i_sample << endl;
                 if (s_record_book[i_sample] == 0) {
-                    s_tmp[i_sample] = rand () % n_spin_state;
+                    //s_tmp[i_sample] = rand () % n_spin_state;
+                    s_tmp[i_sample] = prd_spin_state (mt_64);
                     s_record_book[i_sample] = 1;
                 }
             }
 
-        //  obtain new Hamiltonian
-        //for (i = 0; i < n_particles; i++) {
-        //    if (s_tmp[i] != s[i]) cout << "i: " << i << " s_tmp: " << s_tmp[i] << ", s: " << s[i] << endl;
-        //}
-        applyCyclicBoundaryCondition (s_tmp);
-        Htmp = obtainHamiltonian (s_tmp);
+            //  obtain new Hamiltonian
+            //for (i = 0; i < n_particles; i++) {
+            //    if (s_tmp[i] != s[i]) cout << "i: " << i << " s_tmp: " << s_tmp[i] << ", s: " << s[i] << endl;
+            //}
+            applyCyclicBoundaryCondition (s_tmp);
+            Htmp = obtainHamiltonian (s_tmp);
 
             //  evaluate which cases shall be applied
             cout << "  H = " << H << " Htmp = " << Htmp << " H - Htmp = " << H - Htmp << endl;
@@ -156,6 +192,9 @@ void  parallelArray2D::executeSimulatedAnnealing () {
                 break;
             }
         }
+        writeOutputFile ();
+        n_tsa++;
+        if (n_tsa % output_freq == 0) dumpSpinState (n_tsa);
     }
 }
 
@@ -233,13 +272,13 @@ inline int parallelArray2D::obtainOneDimPosFromTwoDimPos (int i_x, int i_y) {
 }
 
 
-void parallelArray2D::loadConfigFile () {
-    fstream filestream ("conf_2d.dat");
+int parallelArray2D::loadConfigFile () {
+    fstream filestream ("2d.conf");
     string buff, token, comment_reduced_buff, separated_buff;
     
     int i_token, i_lines;
 
-    //if (!filestream.is_open ())   return 0;
+    if (!filestream.is_open ())   return 400;
 
     for (i_lines = 0; !filestream.eof (); i_lines++) {
         getline (filestream, buff);
@@ -289,6 +328,7 @@ void parallelArray2D::loadConfigFile () {
         if (separated_string[0] == "TsaMax")     TsaMax    = stod (separated_string[1]);
         if (separated_string[0] == "TsaMin")     TsaMin    = stod (separated_string[1]);
         if (separated_string[0] == "dTsa")       dTsa      = stod (separated_string[1]);
+        if (separated_string[0] == "n_trial")    n_trial   = stoi (separated_string[1]);
         if (separated_string[0] == "ksa")        ksa       = stod (separated_string[1]);
         if (separated_string[0] == "PsaRef")     PsaRef    = stod (separated_string[1]);
         if (separated_string[0] == "CvdW")       CvdW      = stod (separated_string[1]);
@@ -296,8 +336,78 @@ void parallelArray2D::loadConfigFile () {
             Alpha     = stod (separated_string[1]);
             //cout << Alpha << endl;
         }   
-        
+        if (separated_string[0] == "output_file_name") {
+            output_file_name  = separated_string[1];
+            //cout << Alpha << endl;
+        }   
+        if (separated_string[0] == "output_freq") {
+            output_freq  = stoi (separated_string[1]);
+            //cout << Alpha << endl;
+        }   
     }
+    filestream.close ();
+    return 0;   
+}
+
+
+int parallelArray2D::initOutputFile () {
+    cout << "preparing output file" << endl;
+    cout << "  output file name: " << output_file_name << endl;
+
+    ofstream fs_out;
+    fs_out.open (output_file_name, ios::out);
+    if (fs_out.fail ()) {
+        cout << "  cannot open " << output_file_name << endl;
+        return 401;
+    }
+
+    fs_out << "Tsa, H, Psa, n_particles_perturb" << endl;
+    fs_out.close ();
+
+    return 0;
+}
+
+
+int parallelArray2D::writeOutputFile () {
+    ofstream fs_out;
+
+    fs_out.open (output_file_name, ios::app);
+    if (fs_out.fail ()) {
+        cout << "  cannot open " << output_file_name << endl;
+        return 401;
+    }
+
+    fs_out << Tsa << ", " <<  H << ", " << Psa << ", " << n_particles_perturb << endl;
+    fs_out.close ();
+
+    return 0;
+}
+
+int parallelArray2D::dumpSpinState (int n) {
+    ofstream fs_out;
+    string output_file_name_spin;
+    ostringstream n_fill_digit;
+
     
-    
+    n_fill_digit << setw (10) << setfill ('0') << to_string (n);
+    string n_out (n_fill_digit.str ());
+
+    output_file_name_spin = "out.spin." + n_out;
+    cout << "dump spin state: " << output_file_name_spin << endl;
+
+    fs_out.open (output_file_name_spin, ios::out);
+    if (fs_out.fail ()) {
+        cout << "  cannot open " << output_file_name << endl;
+        return 401;
+    }   
+
+    for (i_x = 0; i_x < n_x; i_x++) {
+        for (i_y = 0; i_y < n_y; i_y++) {
+            fs_out << s[obtainOneDimPosFromTwoDimPos (i_x, i_y)];
+        }
+        fs_out << endl;
+    }
+    fs_out.close ();
+
+    return 0;
 }
