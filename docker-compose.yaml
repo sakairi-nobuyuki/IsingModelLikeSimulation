@@ -1,0 +1,44 @@
+version: "3"
+services:
+  cuda-cudnn-base:
+    build: 
+      context: .
+      target: cuda-cudnn-base
+      args:
+        USER_NAME: ${USER}
+        GROUP_NAME: ${USER}
+        UID: 1000
+        GID: 1000
+    image: cuda-cudnn-base:latest
+    container_name: cuda-cudnn-base
+  cuda-cudnn-python-base:
+    build: 
+      context: .
+      target: cuda-cudnn-python-base
+      args:
+        - USER_NAME=${USER}
+        - ENDPOINT_URL=192.168.1.194
+    image: cuda-cudnn-python-base:latest
+    container_name: cuda-cudnn-python-base
+  ising-model-like-simulation:
+    build: 
+      context: .
+      target: ising-model-like-simulation
+      args:
+        - USER_NAME=${USER}
+        - ENDPOINT_URL=192.168.1.194
+    image: ising-model-like-simulation:latest
+    container_name: ising-model-like-simulation
+    environment:
+      - USER_NAME=${USER}
+      - ENDPOINT_URL=192.168.1.194
+    volumes:
+       - ${PWD}:/home/${USER}/ising_model_like_simulator
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    tty: true
