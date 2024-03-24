@@ -38,9 +38,16 @@ RUN sudo apt update && \
     sudo apt install --no-install-recommends -y python3.10 python3-pip python3.10-dev unzip \
     python3-setuptools python3-distutils curl &&\
     sudo update-alternatives --install /usr/local/bin/python python /usr/bin/python3.10 1 && \
-    sudo apt install --no-install-recommends -y python3-pip curl unzip build-essential libgl1-mesa-glx
-    # sudo update-alternatives --install /usr/local/bin/python python /usr/bin/python3.10 1 && \
-RUN pip install --upgrade pip
+    sudo pip install --upgrade pip
+
+
+# RUN sudo apt update && \
+#    sudo apt install --no-install-recommends -y python3.11 python3-pip python3.11-dev unzip \
+#    python3-setuptools python3.11-distutils curl &&\
+#    sudo update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 1 && \
+#    sudo apt install --no-install-recommends -y python3-pip curl unzip build-essential libgl1-mesa-glx
+#    # sudo update-alternatives --install /usr/local/bin/python python /usr/bin/python3.10 1 && \
+# RUN pip install --upgrade pip
 
 ### Install poetry
 RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=$POETRY_VERSION python -
@@ -64,10 +71,11 @@ COPY ./pyproject.toml ${HOME}
 COPY ./poetry.lock ${HOME}
 
 ### install python dependencies
+RUN sudo chown -R ${USER_NAME} ${HOME}  && sudo chmod -R 777 ${HOME}
 RUN poetry config virtualenvs.create false && \
     poetry config installer.parallel false && \
     poetry export -f requirements.txt --output requirements.txt --without-hashes && \
-    pip3 install -r requirements.txt --user --no-deps
+    pip install -r requirements.txt --user --no-deps
 WORKDIR ${HOME}/ising_model_like_simulator
 
 CMD ["/bin/bash"]

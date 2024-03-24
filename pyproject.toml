@@ -4,16 +4,20 @@ version = "0.1.0"
 description = ""
 authors = ["sakairi-nobuyuki <SAKAIRI.Nobuyuki@gmail.com>"]
 readme = "README.md"
-packages = [{include = "ising_model_like_simulation"}]
+# packages = [{include = "ising_model_like_simulation"}]
+
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.10.6"
 scikit-optimize = "^0.9.0"
 boto3 = "^1.26.133"
 black = "^23.3.0"
 isort = "^5.12.0"
 typer = "^0.9.0"
+numpy = "^1.24.3"
 cupy-cuda11x = "^12.0.0"
+pytest = "^7.3.1"
+pytest-cov = "^4.0.0"
 
 
 [build-system]
